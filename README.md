@@ -17,16 +17,22 @@ Ende der Spickzettel für die Auswertungsstunde.
 
 Das Spiel braucht **keinen Server, keine Installation und kein Konto**.
 
-- **Im Browser öffnen:** `index.html` doppelklicken. Fertig.
-- **Auf dem iPad:** Die Seite über einen Webserver aufrufen (z. B. GitHub Pages)
-  und über „Zum Home-Bildschirm" ablegen. Die Steuerung ist auf Touch ausgelegt:
-  Wischen zum Laufen, ein Knopf zum Sprechen, ein Knopf für den Codex.
+- **Auf dem iPad:** den Link im Browser öffnen – das ist der vorgesehene Weg im
+  Unterricht. Die Steuerung ist auf Touch ausgelegt: Wischen zum Laufen, ein
+  Knopf zum Sprechen, ein Knopf für den Codex.
 - **Am PC:** WASD oder Pfeiltasten zum Laufen, `E` zum Sprechen, `C` für den Codex.
+- **Ohne Netz:** Das Verzeichnis herunterladen und `index.html` doppelklicken.
+  Es braucht keinen Server – das Spiel läuft auch aus dem Dateisystem.
 
 **Alle Daten bleiben auf dem Gerät** (`localStorage`). Es wird nichts
 übertragen, nichts gespeichert, nichts ausgewertet – kein Server ist beteiligt.
 Mehrere Schülerinnen und Schüler können dasselbe iPad benutzen; die Einträge
 werden nach dem eingetragenen Namen getrennt gehalten.
+
+**Wichtig bei zwei Terminen:** Weil alles lokal liegt, findet man seinen Codex
+in der zweiten Stunde nur auf demselben Gerät im selben Browser wieder – und
+nicht im privaten Modus, der beim Schließen alles verwirft. Deshalb gehört der
+Screenshot am Ende jeder Stunde zum Ablauf und nicht erst ans Ende des Spiels.
 
 **Abgabe:** Am Ende macht man einen Screenshot des Codex (`codex.html` oder der
 Abschlussbildschirm) und lädt ihn dort hoch, wo die Lehrkraft ihn erwartet.
