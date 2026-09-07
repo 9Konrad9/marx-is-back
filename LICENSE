@@ -1,0 +1,82 @@
+Marx is back – Der Weg des Proletariers
+=======================================
+
+Dieses Projekt steht unter zwei Lizenzen: eine für den Programmcode, eine für
+die Inhalte. Wer nur den Code weiterverwendet, braucht nur den ersten Teil.
+
+Einzelne Bestandteile stehen davon abweichend unter fremden Lizenzen oder sind
+gemeinfrei. Welche das sind, steht in assets/HERKUNFT.md.
+
+
+-------------------------------------------------------------------------------
+1. PROGRAMMCODE – MIT-Lizenz
+-------------------------------------------------------------------------------
+
+Gilt für alle .html-, .css- und .js-Dateien dieses Projekts.
+
+Copyright (c) 2026 Konrad Hinkel
+
+Hiermit wird unentgeltlich jeder Person, die eine Kopie der Software und der
+zugehörigen Dokumentationen (die "Software") erhält, die Erlaubnis erteilt, sie
+uneingeschränkt zu nutzen, inklusive und ohne Ausnahme dem Recht, sie zu
+verwenden, zu kopieren, zu verändern, zusammenzufügen, zu veröffentlichen, zu
+verbreiten, zu unterlizenzieren und/oder zu verkaufen, und Personen, denen
+diese Software überlassen wird, diese Rechte zu verschaffen, unter den
+folgenden Bedingungen:
+
+Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen Kopien
+oder Teilkopien der Software beizulegen.
+
+DIE SOFTWARE WIRD OHNE JEDE AUSDRÜCKLICHE ODER IMPLIZIERTE GARANTIE
+BEREITGESTELLT, EINSCHLIESSLICH DER GARANTIE ZUR BENUTZUNG FÜR DEN VORGESEHENEN
+ODER EINEM BESTIMMTEN ZWECK SOWIE JEGLICHER RECHTSVERLETZUNG, JEDOCH NICHT
+DARAUF BESCHRÄNKT. IN KEINEM FALL SIND DIE AUTOREN ODER COPYRIGHTINHABER FÜR
+JEGLICHEN SCHADEN ODER SONSTIGE ANSPRÜCHE HAFTBAR ZU MACHEN, OB INFOLGE DER
+ERFÜLLUNG EINES VERTRAGES, EINES DELIKTES ODER ANDERS IM ZUSAMMENHANG MIT DER
+SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.
+
+
+-------------------------------------------------------------------------------
+2. INHALTE – Creative Commons Namensnennung – Weitergabe unter gleichen
+   Bedingungen 4.0 International (CC BY-SA 4.0)
+-------------------------------------------------------------------------------
+
+Gilt für die Unterrichtsinhalte dieses Projekts: Dialoge, Aufgaben,
+Antwortoptionen, Codextexte, Reflexionsfragen, die Darstellungen im Finale
+sowie die Dokumente im Ordner docs/.
+
+Copyright (c) 2026 Konrad Hinkel
+
+Sie dürfen das Material teilen und bearbeiten, auch kommerziell, solange Sie
+angemessene Urheber- und Rechteangaben machen, einen Link zur Lizenz beifügen,
+Änderungen kenntlich machen und Ihre Bearbeitungen unter derselben Lizenz
+weitergeben.
+
+Lizenztext: https://creativecommons.org/licenses/by-sa/4.0/deed.de
+
+
+-------------------------------------------------------------------------------
+3. AUSNAHMEN
+-------------------------------------------------------------------------------
+
+Käthe Kollwitz, "Ein Weberaufstand" (1893–1897)
+    Das Werk ist gemeinfrei. Die Digitalisate stammen vom Statens Museum for
+    Kunst, Kopenhagen, und stehen unter CC0 1.0. Siehe
+    assets/quellen/HERKUNFT.md.
+
+Zitate von Karl Marx und Friedrich Engels
+    Gemeinfrei. Marx starb 1883, Engels 1895.
+
+Bilder in assets/backgrounds/, assets/characters/ und assets/ui/
+    Mit Google Gemini erzeugt und anschließend von Hand nachbearbeitet.
+    Ob und in welchem Umfang an KI-erzeugten Bildern überhaupt ein
+    Urheberrecht entsteht, ist rechtlich nicht abschließend geklärt und je nach
+    Land verschieden. Soweit an der Auswahl, Bearbeitung und Zusammenstellung
+    Rechte bestehen, werden sie unter CC BY-SA 4.0 freigegeben.
+
+Schulbuch
+    Das Spiel enthält keinen Schulbuchtext und keinen Verweis auf ein
+    Schulbuch. Jede Aufgabe geht auf ein wörtliches, gemeinfreies Zitat von
+    Marx bzw. Marx und Engels zurück; die Erklärungen daneben sind eigens für
+    dieses Spiel formuliert und als solche gekennzeichnet. Die verwendeten
+    Fundstellen sind in docs/konzept.md, Abschnitt 12, einzeln aufgeführt.

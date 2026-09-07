@@ -1,0 +1,638 @@
+/* ============================================================
+   Marx is back – gemeinsame Oberfläche aller Areale
+   Wird von jedem Areal über <link rel="stylesheet"> eingebunden.
+   ============================================================ */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  overflow: hidden;
+  height: 100%;
+  font-family: sans-serif;
+  /* Touch: kein Gummiband-Scrollen, keine Textauswahl beim Wischen,
+     kein grauer Aufblitz-Rahmen beim Tippen */
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+input, textarea { -webkit-user-select: text; user-select: text; }
+
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  background: #000;
+  touch-action: none;
+}
+
+#hud {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: #2b2318;
+  background: none;
+  border: 20px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  padding: 0 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
+}
+
+/* ---------- Startbildschirm ---------- */
+#charSelect {
+  position: fixed;
+  inset: 0;
+  background: #1b1510;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #eee;
+  z-index: 10;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+#charSelect.hidden { display: none; }
+#charSelect h1 { font-size: 20px; margin-bottom: 24px; font-weight: normal; }
+#charSelect .options { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+#charSelect .option {
+  background: none;
+  border: 20px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s, filter 0.15s;
+  touch-action: manipulation;
+}
+#charSelect .option:hover { filter: brightness(1.06); transform: translateY(-4px); }
+#charSelect .option img { height: 180px; display: block; margin: 0 auto 10px auto; }
+/* Auswahl bleibt gesperrt, bis ein Name eingetragen ist */
+#charSelect .options.gesperrt .option { opacity: 0.4; }
+
+#nameRow { margin-bottom: 22px; text-align: center; }
+#nameRow label { display: block; font-size: 14px; opacity: 0.75; margin-bottom: 8px; }
+#nameInput {
+  background: #f2ead6;
+  border: 2px solid #8d7c5a;
+  border-radius: 3px;
+  color: #2b2318;
+  font-size: 15px;
+  padding: 8px 12px;
+  width: 260px;
+  text-align: center;
+  font-family: inherit;
+}
+#nameInput:focus { outline: none; border-color: #c49a3c; }
+#nameFehler { color: #e0908c; font-size: 13px; margin-top: 8px; visibility: hidden; }
+#nameFehler.an { visibility: visible; }
+
+#fortsetzenBox.hidden, #neuBox.hidden { display: none; }
+#fortsetzenBox { text-align: center; }
+#fortsetzenInfo { font-size: 15px; opacity: 0.8; margin-bottom: 26px; line-height: 1.5; }
+.startBtns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.startBtn {
+  padding: 12px 22px;
+  font-size: 16px;
+  min-height: 42px;
+}
+.startBtn:hover { filter: brightness(1.12); }
+.startBtn.primary { color: #ffe08a; box-shadow: inset 0 0 0 2px #e8b84b; }
+
+/* ---------- Dialogbox: Bogen Papier ----------
+   border-image zerlegt die Textur in neun Felder: Die vier Ecken bleiben
+   unverzerrt, Ränder und Mitte werden gedehnt. "fill" sorgt dafür, dass das
+   mittlere Feld als Fläche gezeichnet wird. */
+#dialogBox {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  width: min(820px, calc(100vw - 48px));
+  box-sizing: border-box;
+  background: none;
+  border: 30px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 4px 8px;
+  display: flex;
+  gap: 16px;
+  z-index: 15;
+  filter: drop-shadow(0 8px 22px rgba(0,0,0,0.65));
+  cursor: pointer;
+}
+#dialogBox.hidden { display: none; }
+#dialogPortrait {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  background: #cdbf9f;
+  border: 2px solid #6b5533;
+  /* Ganzkörperbild auf Kopf/Schultern beschneiden statt winzig einpassen */
+  object-fit: cover;
+  object-position: center top;
+}
+#dialogPortrait.hidden { display: none; }
+/* Ausschnitt aus dem Hintergrundbild für Orte ohne eigene Figur */
+#dialogOrt {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  border: 2px solid #6b5533;
+  background-color: #cdbf9f;
+  background-repeat: no-repeat;
+}
+#dialogOrt.hidden { display: none; }
+#dialogMain { flex: 1; min-width: 0; }
+#dialogName {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: #7a4a18;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+#dialogText { font-size: 16px; line-height: 1.5; min-height: 48px; color: #2b2318; }
+#dialogHint { margin-top: 10px; font-size: 12px; color: #6b6152; text-align: right; }
+
+/* ---------- Interaktions-Hinweis: genietete Eisenplatte ----------
+   Bewusst NICHT das Holzschild: Das tragen im Spiel die Figuren als
+   Namensbanner, und der Hinweis soll sich davon unterscheiden lassen.
+   Slice 52 fasst Ecke samt Niete; der schmale Rand staucht die Fassung,
+   damit sie bei einer Zeile Text nicht wie ein Bilderrahmen wirkt. */
+#interactHint {
+  position: fixed;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%);
+  background: none;
+  border: 20px solid transparent;
+  border-image: url(../../assets/ui/eisenschild.png) 52 fill stretch;
+  /* Dunkle Schrift auf hellem Stahl – die Platte muss sich vor dunklen
+     Fassaden ebenso abheben wie vor Schnee, deshalb ist sie nicht dunkel. */
+  color: #23231f;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  font-weight: bold;
+  padding: 1px 10px;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  z-index: 12;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.6));
+}
+#interactHint.hidden { display: none; }
+
+/* ---------- Aufgaben-Overlay ---------- */
+#gateOverlay {
+  position: fixed;
+  inset: 0;
+  background: #1b1510;
+  z-index: 18;
+  overflow-y: auto;
+  padding: 28px 20px;
+  box-sizing: border-box;
+  color: #f0ece4;
+}
+#gateOverlay.hidden { display: none; }
+.gateInner { max-width: 900px; margin: 0 auto; }
+/* Überschrift als Holzschild – dieselbe Bildsprache wie die Namensbanner
+   der Figuren im Spiel. Ersetzt die frühere goldene Schrift auf Schwarz. */
+.gateInner h2 {
+  display: inline-block;
+  font-size: 19px;
+  font-weight: normal;
+  margin: 0 0 10px 0;
+  padding: 9px 20px;
+  border: 10px solid transparent;
+  border-image: url(../../assets/ui/holzknopf.jpg) 46 fill stretch;
+  color: #f3e6c6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+}
+.gateSub { font-size: 14px; color: #b9ae99; margin-bottom: 20px; line-height: 1.5; }
+
+/* Aufgabenkarten liegen als Papierzettel auf dem dunklen Grund. */
+.gateCard {
+  background: none;
+  border: 22px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.gateCardText { flex: 1; font-size: 15px; line-height: 1.45; color: #2b2318; }
+/* Nummer in der Reihenfolge-Aufgabe */
+.reiNummer {
+  flex: 0 0 30px;
+  font-size: 17px;
+  color: #7a4a18;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+.gateBtn:disabled { opacity: 0.35; cursor: default; }
+.gateBtns { display: flex; gap: 8px; flex: 0 0 auto; }
+/* ---------- Knöpfe: Holzplakette ----------
+   Gemeinsame Grundlage für alle Schaltflächen im Spiel. */
+.holz, .gateBtn, #gateCheck, .startBtn, .touchBtn,
+#abschlussWeiter, #abschlussZurueck {
+  background: none;
+  /* Schmaler Rand bei großzügigem Slice: Die Rahmenkante wird dadurch
+     zusammengestaucht und wirkt fein statt wie ein Bilderrahmen. */
+  border: 8px solid transparent;
+  border-image: url(../../assets/ui/holzknopf.jpg) 46 fill stretch;
+  color: #f3e6c6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.holz:active, .gateBtn:active, #gateCheck:active, .startBtn:active,
+.touchBtn:active, #abschlussWeiter:active, #abschlussZurueck:active {
+  filter: brightness(0.78);
+}
+
+.gateBtn {
+  padding: 4px 10px;
+  min-height: 30px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.gateBtn:hover { filter: brightness(1.12); }
+/* Ausgewählt: heller Rahmen innen plus goldene Schrift – muss sich auf dem
+   Holz eindeutig von "nicht ausgewählt" unterscheiden */
+.gateBtn.sel {
+  color: #ffe08a;
+  box-shadow: inset 0 0 0 2px #e8b84b;
+  filter: brightness(1.2);
+}
+/* Richtig/falsch als Ring um den Papierzettel. Ein border-color greift hier
+   nicht mehr, weil der Rand ein border-image ist. */
+.gateCard.right, .frageBlock.right { box-shadow: 0 0 0 3px #5f9c58; }
+.gateCard.wrong, .frageBlock.wrong { box-shadow: 0 0 0 3px #b05a55; }
+
+.gateFeedback { font-size: 14px; margin: 4px 0 16px 0; min-height: 20px; line-height: 1.5; }
+#gateCheck {
+  padding: 10px 20px;
+  font-size: 15px;
+  min-height: 38px;
+}
+#gateCheck:hover { filter: brightness(1.12); }
+
+/* ---------- Quellenarbeit ---------- */
+/* Quellen liegen als echte Papierbögen auf dem Tisch */
+.quelleBox {
+  background: none;
+  border: 34px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #23201a;
+  padding: 0 4px;
+  margin-bottom: 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+}
+.quelleKopf {
+  font-family: sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7a6a45;
+  margin-bottom: 8px;
+}
+.quelleZitat { font-size: 16px; font-style: italic; }
+/* Zusammenfassung statt Zitat: aufrecht und ohne Anführungszeichen */
+.quelleText  { font-size: 16px; line-height: 1.6; }
+/* Bildquellen (Grafiken) im Quellenkasten */
+.quelleBild {
+  display: block;
+  /* Höhe mitbegrenzen, damit unter einem hochformatigen Blatt noch die
+     Aufgaben sichtbar bleiben. width:auto hält dabei das Seitenverhältnis. */
+  width: auto;
+  max-width: min(620px, 100%);
+  max-height: 42vh;
+  margin: 4px auto 10px auto;
+  border: 1px solid #b9ac8d;
+}
+/* Darstellungen in Stichpunktform: Stichwort links, Erläuterung darunter */
+.quellePunkte {
+  margin: 4px 0 0 0;
+  font-family: sans-serif;
+}
+.quellePunkte dt {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b5533;
+  margin-top: 12px;
+}
+.quellePunkte dt:first-child { margin-top: 2px; }
+.quellePunkte dd {
+  margin: 3px 0 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #2b2318;
+}
+.quelleBildtext {
+  font-family: sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #3a352a;
+  margin-top: 6px;
+}
+.quelleNachweis {
+  font-family: sans-serif;
+  font-size: 12px;
+  color: #6a6152;
+  margin-top: 10px;
+  border-top: 1px solid #d8cfb8;
+  padding-top: 8px;
+}
+.frageBlock {
+  background: none;
+  border: 26px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+  margin-bottom: 6px;
+}
+.frageKopf {
+  font-size: 12px;
+  color: #7a4a18;
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.frageText { font-size: 15px; line-height: 1.5; margin-bottom: 12px; color: #2b2318; }
+.frageOptionen { display: flex; flex-direction: column; gap: 8px; }
+.frageOptionen .gateBtn { text-align: left; white-space: normal; }
+
+/* ---------- Reflexion (Freitext, ungewertet) ---------- */
+#reflexionOverlay {
+  position: fixed;
+  inset: 0;
+  background: #1b1510;
+  z-index: 19;
+  overflow-y: auto;
+  padding: 28px 20px;
+  box-sizing: border-box;
+  color: #f0ece4;
+}
+#reflexionOverlay.hidden { display: none; }
+#reflexionFrage {
+  font-size: 17px;
+  line-height: 1.6;
+  background: none;
+  border: 26px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+  margin-bottom: 14px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+/* Das Schreibfeld bleibt hell wie ein leerer Bogen – hier schreibt man
+   hinein, es soll nicht wie ein Terminal aussehen. */
+#reflexionText {
+  width: 100%;
+  min-height: 170px;
+  background: #f2ead6;
+  border: 2px solid #8d7c5a;
+  border-radius: 3px;
+  color: #2b2318;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 12px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+#reflexionText:focus { outline: none; border-color: #c49a3c; }
+#reflexionHinweis { font-size: 13px; color: #b9ae99; margin: 10px 0 16px 0; }
+
+/* ---------- Codex ---------- */
+#codexOverlay {
+  position: fixed;
+  inset: 0;
+  background: #1b1510;
+  z-index: 17;
+  overflow-y: auto;
+  padding: 28px 20px;
+  box-sizing: border-box;
+  color: #f0ece4;
+}
+#codexOverlay.hidden { display: none; }
+/* Raster statt langer Spalte: Die Karten füllen die Breite selbstständig,
+   auf dem iPad quer werden es zwei bis drei Spalten. */
+.codexRaster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.codexEntry {
+  background: none;
+  border: 16px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+}
+.codexAreal {
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8a7a5a;
+  margin-bottom: 4px;
+}
+.codexEntry h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #7a4a18;
+  font-weight: bold;
+  font-family: Georgia, "Times New Roman", serif;
+}
+.codexEntry p { margin: 0; font-size: 13.5px; line-height: 1.5; color: #2b2318; }
+.codexKurz { font-family: Georgia, "Times New Roman", serif; font-size: 14px !important; }
+.codexEntry details { margin-top: 8px; }
+.codexEntry summary {
+  font-size: 12px;
+  color: #7a4a18;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.codexEntry details p { margin-top: 8px; font-size: 13px; }
+.codexSrc { display: block; margin-top: 8px; font-size: 11.5px; color: #6a6152; }
+
+/* Eigene Positionen: Fließtext über die volle Breite, abgesetzt */
+.codexAbschnitt {
+  color: #b9ae99;
+  font-weight: normal;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 26px 0 10px 0;
+}
+.codexMeinung { display: block; margin-bottom: 10px; }
+.codexFrage {
+  font-style: italic;
+  color: #5c5140 !important;
+  margin-bottom: 8px !important;
+}
+.codexEmpty { color: #c9bfa4; font-size: 14px; line-height: 1.6; }
+
+/* ---------- Abschluss eines Areals ---------- */
+#abschlussOverlay {
+  position: fixed;
+  inset: 0;
+  background: #1b1510;
+  z-index: 21;
+  overflow-y: auto;
+  padding: 28px 20px 60px 20px;
+  box-sizing: border-box;
+  color: #f0ece4;
+}
+#abschlussOverlay.hidden { display: none; }
+.kontoBoxAbschluss {
+  background: none;
+  border: 24px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 4px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.abschlussBtns { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+#abschlussWeiter, #abschlussZurueck {
+  padding: 12px 22px;
+  font-size: 15px;
+  min-height: 40px;
+}
+#abschlussWeiter { color: #ffe08a; box-shadow: inset 0 0 0 2px #e8b84b; }
+#abschlussWeiter.hidden { display: none; }
+
+/* ---------- Toast ---------- */
+/* Ein Zettel, kein Systemfenster: Der Toast meldet Notiertes –
+   freigeschaltete Begriffe, gespeicherte Antworten. */
+#toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: 26px solid transparent;
+  border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+  color: #2b2318;
+  padding: 0 6px;
+  font-size: 15px;
+  line-height: 1.5;
+  z-index: 25;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  max-width: min(520px, calc(100vw - 40px));
+  text-align: center;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.6));
+}
+#toast.hidden { opacity: 0; }
+
+/* ---------- Touch-Bedienung (iPad) ---------- */
+.touchBtn {
+  position: fixed;
+  z-index: 14;
+  font-size: 17px;
+  padding: 14px 16px;
+  min-width: 100px;
+  min-height: 44px;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.6));
+}
+.touchBtn.hidden { display: none; }
+#btnCodex  { top: max(14px, env(safe-area-inset-top)); right: 16px; }
+#btnAktion {
+  bottom: max(24px, env(safe-area-inset-bottom));
+  right: 24px;
+  font-size: 18px;
+  padding: 20px 26px;
+}
+body.touch #hud { display: none; }
+body.touch #interactHint { bottom: 150px; }
+
+/* ---------- Zonen-Editor ---------- */
+#exportOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,10,0.92);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+#exportOverlay.hidden { display: none; }
+#exportHint { color: #eee; margin-bottom: 10px; font-size: 14px; }
+#exportBox {
+  width: 100%;
+  max-width: 900px;
+  height: 60%;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 10px;
+  box-sizing: border-box;
+  resize: none;
+}
+
+/* ---------- Schmale Bildschirme ---------- */
+@media (max-width: 760px) {
+  .gateCard { flex-direction: column; align-items: stretch; gap: 10px; }
+  .gateBtns { width: 100%; }
+  .gateBtn { flex: 1; }
+  #dialogBox { bottom: 12px; padding: 12px 14px; }
+  #dialogPortrait { width: 56px; height: 56px; flex-basis: 56px; }
+  #dialogOrt { width: 56px; height: 56px; flex-basis: 56px; }
+}
+
+/* ---------- Spielmenü ----------
+   Knopf und Fenster werden von der Engine erzeugt (siehe baueMenu),
+   damit nicht jede Areal-Datei sie einzeln mitschleppen muss. */
+#btnMenu {
+  top: max(14px, env(safe-area-inset-top));
+  right: 150px;
+  min-width: 84px;
+  font-size: 16px;
+}
+#menuOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20,16,12,0.94);
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #ece4d4;
+}
+#menuOverlay.hidden { display: none; }
+#menuOverlay .gateInner { max-width: 460px; text-align: center; }
+.menuBtns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+.menuBtn {
+  padding: 14px 20px;
+  font-size: 16px;
+  min-height: 46px;
+}
+.menuBtn:hover { filter: brightness(1.12); }
+.menuHinweis {
+  margin-top: 20px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #a2977f;
+}

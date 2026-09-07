@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Theorie-Codex</title>
+<link rel="stylesheet" href="game/shared/engine.css">
+<style>
+  /* Diese Seite ist kein Areal: kein Canvas, kein Spiel, nur der Codex.
+     Deshalb darf sie scrollen – engine.css sperrt das für die Spielseiten. */
+  html, body { overflow: auto; background: #1b1510; height: auto; }
+  body { padding: 26px 20px 60px 20px; box-sizing: border-box; color: #ece4d4; }
+  .blatt { max-width: 1100px; margin: 0 auto; }
+  .kopfzeile { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  .schuelername { font-size: 15px; color: #b9ae99; }
+  .zurueck { padding: 10px 18px; font-size: 14px; min-height: 40px; text-decoration: none;
+             display: inline-block; }
+</style>
+</head>
+<body>
+
+<div class="blatt gateInner">
+  <div class="kopfzeile">
+    <h2>Theorie-Codex</h2>
+    <a class="holz zurueck" href="index.html">Zurück zum Menü</a>
+  </div>
+  <div class="gateSub">
+    <span class="schuelername" id="wer"></span><br>
+    Für die Abgabe: Screenshot von dieser Seite machen und in OneNote hochladen.
+  </div>
+  <div id="inhalt"></div>
+</div>
+
+<script>
+// Spiegelt codexHtml() aus game/shared/engine.js. Wenn dort die Darstellung
+// geändert wird, muss sie hier mitgezogen werden – die Spielseiten laden ihre
+// eigene Fassung aus der Engine, diese Seite kommt ohne Engine aus.
+function lies(key) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+  catch (e) { return []; }
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+const name = localStorage.getItem('marxIsBack.name') || '';
+document.getElementById('wer').textContent = name ? name : 'Kein Name eingetragen';
+
+const begriffe = lies('marxIsBack.codex').filter(e => e.name === name)
+                   .sort((a, b) => a.areal - b.areal);
+const meinungen = lies('marxIsBack.meinungen').filter(e => e.name === name)
+                   .sort((a, b) => a.areal - b.areal);
+
+let html = '';
+if (!begriffe.length && !meinungen.length) {
+  html = '<div class="codexEmpty">Für <b>' + esc(name || '–') + '</b> ist noch nichts ' +
+         'gespeichert.<br>Wenn du schon gespielt hast, hast du deinen Namen vielleicht ' +
+         'anders geschrieben – trag ihn im Menü genau gleich ein.</div>';
+} else {
+  if (begriffe.length) {
+    html += '<div class="codexRaster">';
+    for (const f of begriffe) {
+      html += '<div class="codexEntry">' +
+                '<div class="codexAreal">' + esc(f.arealName || ('Areal ' + f.areal)) + '</div>' +
+                '<h3>' + esc(f.title) + '</h3>' +
+                '<p class="codexKurz">' + esc(f.kurz || f.text) + '</p>' +
+                (f.kurz
+                  ? '<details><summary>Ausführlich</summary><p>' + esc(f.text) + '</p>' +
+                    '<span class="codexSrc">' + esc(f.src) + '</span></details>'
+                  : '<span class="codexSrc">' + esc(f.src) + '</span>') +
+              '</div>';
+    }
+    html += '</div>';
+  }
+  if (meinungen.length) {
+    html += '<h3 class="codexAbschnitt">Meine Positionen</h3>';
+    for (const m of meinungen) {
+      html += '<div class="codexEntry codexMeinung">' +
+                '<div class="codexAreal">Areal ' + esc(String(m.areal)) + '</div>' +
+                '<p class="codexFrage">' + esc(m.frage) + '</p>' +
+                '<p>' + esc(m.antwort) + '</p>' +
+                '<span class="codexSrc">Ungewertet – deine eigene Meinung</span>' +
+              '</div>';
+    }
+  }
+}
+document.getElementById('inhalt').innerHTML = html;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 4 – Der Versammlungsraum</title>
+<link rel="stylesheet" href="../shared/engine.css">
+<style>
+  /* ---------- Entscheidung und Konsequenz ---------- */
+  #wahlOverlay, #folgeOverlay {
+    position: fixed;
+    inset: 0;
+    background: #1b1510;
+    z-index: 19;
+    overflow-y: auto;
+    padding: 28px 20px;
+    box-sizing: border-box;
+    color: #f0ece4;
+  }
+  #wahlOverlay.hidden, #folgeOverlay.hidden { display: none; }
+
+  /* Die drei Wege liegen als Zettel auf dem Tisch – dieselben Papierkarten
+     wie Quellen und Aufgaben. */
+  .wahlKarte {
+    background: none;
+    border: 22px solid transparent;
+    border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+    color: #2b2318;
+    padding: 0 6px;
+    margin-bottom: 10px;
+  }
+  .wahlKarte h3 { margin: 0 0 6px 0; font-size: 17px; color: #7a4a18; font-weight: bold; }
+  .wahlKarte p { margin: 0 0 14px 0; font-size: 14px; line-height: 1.5; color: #2b2318; }
+  .wahlKarte button { padding: 8px 18px; font-size: 15px; min-height: 32px; }
+
+  #wahlHinweis {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #b9ae99;
+    border-left: 3px solid #6b5533;
+    padding-left: 12px;
+    margin-bottom: 22px;
+  }
+
+  #folgeTitel { font-size: 20px; color: #f3e6c6; font-weight: bold; margin-bottom: 12px; }
+  #folgeText { font-size: 16px; line-height: 1.65; margin-bottom: 18px; }
+  #folgeBild {
+    display: block;
+    /* width:auto + beide max-Werte: das Blatt passt sich der Höhe an, ohne sich
+       zu verzerren. Sonst schiebt ein hochformatiges Blatt den Weiter-Button
+       auf dem iPad aus dem Bild. */
+    width: auto;
+    max-width: min(560px, 100%);
+    max-height: 46vh;
+    margin: 0 auto 8px auto;
+    border: 1px solid #5a5344;
+  }
+  #folgeBild.hidden { display: none; }
+  #folgeNachweis {
+    font-size: 12px;
+    color: #8a8378;
+    text-align: center;
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+  #folgeWeiter { padding: 10px 20px; font-size: 15px; min-height: 34px; }
+</style>
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="wahlOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Was schlägst du der Versammlung vor?</h2>
+    <div id="wahlHinweis">
+      Diese Entscheidung wird nicht bewertet. Es gibt keinen richtigen Weg –
+      jeder hat einen Preis und jeder wurde historisch beschritten. Was du
+      wählst, wird festgehalten und ist später Grundlage für das Gespräch
+      im Unterricht.
+    </div>
+    <div id="wahlKarten"></div>
+  </div>
+</div>
+
+<div id="folgeOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="folgeTitel"></div>
+    <div id="folgeText"></div>
+    <img id="folgeBild" class="hidden" alt="">
+    <div id="folgeNachweis"></div>
+    <button id="folgeWeiter" class="holz">Weiter</button>
+  </div>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 4 – Die Entscheidung und ihre Folgen
+// ============================================================
+
+const elWahl  = document.getElementById('wahlOverlay');
+const elFolge = document.getElementById('folgeOverlay');
+Spiel.registriereOverlay(elWahl);
+Spiel.registriereOverlay(elFolge);
+
+function openEntscheidung() {
+  const behaelter = document.getElementById('wahlKarten');
+  behaelter.innerHTML = '';
+  for (const id of Object.keys(WEGE)) {
+    const w = WEGE[id];
+    const karte = document.createElement('div');
+    karte.className = 'wahlKarte';
+
+    const h = document.createElement('h3');
+    h.textContent = w.label;
+    const p = document.createElement('p');
+    p.textContent = w.kurz;
+    const b = document.createElement('button');
+    b.className = 'gateBtn';
+    b.textContent = 'Das schlage ich vor';
+    b.addEventListener('click', () => waehle(id));
+
+    karte.appendChild(h); karte.appendChild(p); karte.appendChild(b);
+    behaelter.appendChild(karte);
+  }
+  elWahl.classList.remove('hidden');
+}
+
+function waehle(id) {
+  STORY.entscheidung = id;
+  STORY.beat = 0;
+  elWahl.classList.add('hidden');
+  // Getrennt von den Punkten festhalten – es ist ein Werturteil, keine Leistung
+  speichereEntscheidung(id);
+  zeigeFolge();
+}
+
+function zeigeFolge() {
+  const beat = WEGE[STORY.entscheidung].beats[STORY.beat];
+  document.getElementById('folgeTitel').textContent = beat.titel;
+  document.getElementById('folgeText').textContent = beat.text;
+
+  const bild = document.getElementById('folgeBild');
+  const nachweis = document.getElementById('folgeNachweis');
+  if (beat.bild) {
+    bild.src = beat.bild;
+    bild.classList.remove('hidden');
+    nachweis.textContent = beat.bildnachweis || '';
+  } else {
+    bild.classList.add('hidden');
+    nachweis.textContent = '';
+  }
+
+  const letzter = STORY.beat >= WEGE[STORY.entscheidung].beats.length - 1;
+  document.getElementById('folgeWeiter').textContent = letzter ? 'Zurück in den Saal' : 'Weiter';
+  elFolge.classList.remove('hidden');
+}
+
+document.getElementById('folgeWeiter').addEventListener('click', () => {
+  STORY.beat++;
+  elFolge.classList.add('hidden');
+  Spiel.speichern();
+  if (STORY.beat < WEGE[STORY.entscheidung].beats.length) {
+    zeigeFolge();
+  } else {
+    Spiel.zeigeToast('Sprich mit Karl Marx über das, was geschehen ist.');
+  }
+});
+
+// Die Entscheidung ist ein Werturteil: Sie wird zu den ungewerteten
+// Freitexten gelegt, nicht zu den Punkten.
+function speichereEntscheidung(id) {
+  try {
+    const key = 'marxIsBack.meinungen';
+    const alle = JSON.parse(localStorage.getItem(key) || '[]');
+    alle.push({
+      name: (document.getElementById('nameInput').value.trim() || 'ohne Namen'),
+      areal: 4,
+      frage: 'Entscheidung im Versammlungsraum',
+      antwort: WEGE[id].label,
+      zeit: new Date().toISOString()
+    });
+    localStorage.setItem(key, JSON.stringify(alle));
+  } catch (e) { /* gesperrter Speicher darf nichts anhalten */ }
+}
+
+// ---------- Abschlussaufgabe ----------
+function openGate() {
+  Spiel.oeffneQuellen({
+    titel: 'Warum gerade jetzt?',
+    hinweis: 'Ein Satz von Marx, unsere Erklärung dazu und ein Blatt von Käthe Kollwitz. ' +
+             'Drei verschiedene Arten von Text und Bild – unter jedem Kasten steht, was er ist.',
+    quellen: [
+      QUELLEN.manifest,
+      QUELLEN.erklaerung,
+      { ref: QUELLEN.bild.ref, bild: QUELLEN.bild.bild,
+        bildtext: QUELLEN.bild.bildtext, nachweis: QUELLEN.bild.nachweis }
+    ],
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb, operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage, typ: f.typ,
+      optionen: f.optionen, richtig: f.richtig
+    })),
+    aufgabe: 'Klassenkampf und Bildquelle',
+    fragment: 'klassenkampf',
+    erfolgText: 'Richtig. Du kannst benennen, warum die Fabrik selbst den Widerstand hervorbringt.',
+    weiterText: 'Weiter',
+    onFertig: () => {
+      STORY.gateBestanden = true;
+      Spiel.schalteFragmentFrei('revolution');
+      Spiel.schalteFragmentFrei('wege');
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+function openReflexion() {
+  Spiel.oeffneReflexion({
+    frage: REFLEXIONSFRAGE,
+    onFertig: () => Spiel.zeigeToast('Du kannst den Saal jetzt verlassen.')
+  });
+}
+
+// Weiter in Areal 5: dort schließt sich der Bogen (Krise, Ziel, Gegenwart).
+function zeigeAbschluss() {
+  const w = STORY.entscheidung ? WEGE[STORY.entscheidung].vorschlag : 'nichts zu tun';
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 4 abgeschlossen: Der Versammlungsraum',
+    text: 'Du hast vorgeschlagen, ' + w + ' – und gesehen, was daraus geworden ist. ' +
+          'Kein Weg war umsonst, und keiner war umsonst zu haben. Du kannst jetzt ' +
+          'benennen, warum die Fabrik selbst die Bedingungen dafür schafft, dass sich ' +
+          'Widerstand überhaupt organisieren kann.',
+    weiterLabel: 'Weiter zum Krisenplatz',
+    weiterZiel: '../areal5/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 4,
+  arealName: 'Areal 4 – Der Versammlungsraum',
+  hintergrund: '../../assets/backgrounds/areal4_versammlung.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+  uiPfad: '../../assets/ui/',
+
+  worldZoom: 0.95,
+  authoredZoom: 1,
+  spielerHoehe: 218,
+
+  zonen: AREAL4_ZONEN,
+  // Weit genug oben, dass Marx am Rednerpult im Startbild ganz zu sehen ist.
+  // Der seitliche Versatz hält die Figur aus seinem Ansprechradius heraus,
+  // damit der erste Hinweis zur Versammlung führt und nicht zu Marx.
+  startpunkt: { x: 1270, y: 880 },
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Sprich zuerst mit Marx – er sagt dir, warum ihr hier seid. Bewegen mit WASD, sprechen mit E.',
+  startHinweisTouch: 'Sprich zuerst mit Marx – er sagt dir, warum ihr hier seid. Wisch zum Laufen, tippe auf „Sprechen“.'
+});
+</script>
+
+</body>
+</html>

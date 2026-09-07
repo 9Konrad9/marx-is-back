@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Epilog – Petrograd 1917</title>
+<link rel="stylesheet" href="../shared/engine.css">
+<style>
+  /* ---------- Titelkarte zu Beginn ---------- */
+  #auftakt {
+    position: fixed;
+    inset: 0;
+    background: #1b1510;
+    z-index: 26;   /* über dem Toast (25), sonst steht der Starthinweis darauf */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 26px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  #auftakt.hidden { display: none; }
+  /* Der historische Auftakt steht auf demselben Papier wie Quellen und
+     Aufgaben – kein Gold auf Schwarz. */
+  #auftaktKarte {
+    border: 26px solid transparent;
+    border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+    max-width: 660px;
+    margin-bottom: 24px;
+    padding: 0 6px;
+  }
+  #auftaktOrt {
+    font-size: 24px;
+    font-weight: bold;
+    color: #7a4a18;
+    margin-bottom: 18px;
+  }
+  #auftaktText { font-size: 17px; line-height: 1.7; color: #2b2318; }
+  #auftaktText p { margin: 0 0 14px 0; }
+  #auftaktText p:last-child { margin-bottom: 0; }
+  #auftaktWeiter {
+    padding: 10px 20px;
+    font-size: 15px;
+    min-height: 34px;
+  }
+</style>
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="auftakt" class="hidden">
+  <div id="auftaktKarte">
+    <div id="auftaktOrt"></div>
+    <div id="auftaktText"></div>
+  </div>
+  <button id="auftaktWeiter" class="holz">Weiter</button>
+</div>
+
+<!-- Aufgaben- und Reflexionsfenster gibt es im Epilog nicht. Die Hüllen
+     bleiben trotzdem stehen: die Engine greift sie beim Laden ab und
+     fragt sie ab, um zu erkennen, ob gerade ein Fenster offen ist. -->
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub"></div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText"></textarea>
+    <div id="reflexionHinweis"></div>
+    <button id="reflexionSpeichern" class="gateBtn">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück auf den Platz</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Epilog – Petrograd, Herbst 1917
+//  Kein Gate, kein Begriff. Ein Gang, drei Stationen, ein Ausblick.
+// ============================================================
+
+const elAuftakt = document.getElementById('auftakt');
+Spiel.registriereOverlay(elAuftakt);
+
+// Zoomfaktor nur einmal festlegen – Konfiguration und Kisten brauchen ihn.
+const WELT_ZOOM = 0.9;
+
+// ---------- Die beiden Rednerkisten ----------
+// Beide Redner stehen auf einer umgedrehten Kiste; im Text steht es, also muss
+// man es auch sehen. Die Kiste wird über den Boden-Haken gezeichnet, damit die
+// Figuren darüber liegen und nicht hinter der Vorderkante verschwinden.
+// Höhe rund 0,5 m: Eine Figur ist 176 px bei 1,70 m, also sind 100 px ≈ 1 m.
+const KISTE_HOEHE = 55;
+const KISTEN = [
+  { x: 1700, y:  980 },   // der anonyme Vorleser
+  { x: 2450, y: 1060 }    // Lenin
+];
+
+const kisteBild = new Image();
+let kisteBereit = false;
+kisteBild.onload = () => { kisteBereit = true; };
+kisteBild.src = '../../assets/ui/kiste.png';
+
+function zeichneKisten(ctx) {
+  if (!kisteBereit) return;
+  const b = KISTE_HOEHE * (kisteBild.naturalWidth / kisteBild.naturalHeight);
+  for (const k of KISTEN) {
+    ctx.drawImage(kisteBild,
+                  k.x * WELT_ZOOM - b / 2,
+                  k.y * WELT_ZOOM - KISTE_HOEHE,
+                  b, KISTE_HOEHE);
+  }
+}
+
+// Der Starthinweis erscheint gleichzeitig mit der Titelkarte und wäre verklungen,
+// bevor man sie weggeklickt hat. Deshalb liegt die Karte darüber, und der
+// Hinweis wird danach noch einmal gezeigt.
+const HINWEIS_TASTATUR =
+  'Sieh dich um. Es gibt hier nichts zu lösen. Bewegen mit WASD, sprechen mit E.';
+const HINWEIS_TOUCH =
+  'Sieh dich um. Es gibt hier nichts zu lösen. Wisch zum Laufen, tippe auf „Sprechen“.';
+
+function zeigeAuftakt() {
+  if (STORY.auftaktGezeigt) return;
+  document.getElementById('auftaktOrt').textContent = AUFTAKT.ort;
+  document.getElementById('auftaktText').innerHTML =
+    AUFTAKT.zeilen.map(z => '<p>' + z + '</p>').join('');
+  elAuftakt.classList.remove('hidden');
+}
+
+document.getElementById('auftaktWeiter').addEventListener('click', () => {
+  elAuftakt.classList.add('hidden');
+  STORY.auftaktGezeigt = true;
+  Spiel.speichern();
+  Spiel.zeigeToast(Spiel.istTouch ? HINWEIS_TOUCH : HINWEIS_TASTATUR);
+});
+
+// ---------- Schluss ----------
+// Kein weiterZiel: Hier endet das Spiel. Der Knopf entfällt dann von selbst,
+// und es bleibt nur der Weg zurück auf den Platz.
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Hier hört das Spiel auf',
+    text: 'Du hast heute zwei Redner gehört. Der eine las Marx vor – dieselben Sätze, die ' +
+          'du auf dem Marktplatz auseinandergenommen hast. Der andere berief sich auf Marx ' +
+          'und sagte etwas anderes: Marx erwartete die Revolution dort, wo die Industrie am ' +
+          'weitesten ist. Russland war das Gegenteil davon. Lenin hielt das nicht für einen ' +
+          'Einwand, sondern für eine Gelegenheit. Was in den Wochen nach diesem Tag geschieht, ' +
+          'ist deshalb nicht mehr die Geschichte von Marx – er war da seit vierunddreißig ' +
+          'Jahren tot –, sondern die Geschichte derer, die sich auf ihn beriefen. Aus einer ' +
+          'Erzählung über die Geschichte wurde dort eine Erzählung, die der Staat vorschrieb: ' +
+          'in Lehrbüchern, verbindlich, mit einer einzigen zulässigen Deutung. Wer ein Narrativ ' +
+          'durchsetzen kann, bestimmt mit, was als wahr gilt. Ob das, was daraus wurde, war, ' +
+          'was Marx gemeint hat, beantwortet dieses Spiel nicht. Das ist die nächste Frage – ' +
+          'und die nächste Stunde.'
+  });
+}
+
+Spiel.start({
+  areal: 6,
+  arealName: 'Epilog – Petrograd 1917',
+  hintergrund: '../../assets/backgrounds/epilog_petrograd.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+  uiPfad: '../../assets/ui/',
+
+  // Zonen und NPC-Positionen sind direkt Bildpixel, daher authoredZoom 1.
+  worldZoom: WELT_ZOOM,
+  authoredZoom: 1,
+  spielerHoehe: 170,
+
+  zeichneBoden: zeichneKisten,
+
+  zonen: EPILOG_ZONEN,
+  // Links an der Ladenzeile, wo schon eine rote Fahne hängt. Nach rechts hin
+  // wird das Rot dichter und endet am offenen Tor – der Weg ist die Steigerung.
+  startpunkt: { x: 820, y: 1080 },
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  // Die Titelkarte erscheint erst, wenn das Spiel wirklich läuft –
+  // nicht schon hinter dem Startbildschirm.
+  nachStart: zeigeAuftakt,
+
+  startHinweisTastatur: HINWEIS_TASTATUR,
+  startHinweisTouch: HINWEIS_TOUCH
+});
+</script>
+
+</body>
+</html>

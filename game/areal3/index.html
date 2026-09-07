@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 3 – Das Stadtviertel</title>
+<link rel="stylesheet" href="../shared/engine.css">
+<style>
+  /* ---------- Lohnanzeige und Jahresangabe ---------- */
+  /* Papierzettel wie die Anzeige oben links in den anderen Arealen (#hud) */
+  #zeitLeiste {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 13;
+    color: #2b2318;
+    background: none;
+    border: 20px solid transparent;
+    border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+    padding: 0 4px;
+    font-size: 14px;
+    line-height: 1.6;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
+  }
+  #zeitLeiste.hidden { display: none; }
+  #zeitJahr { color: #7a4a18; font-weight: bold; }
+  #zeitLohn b { font-variant-numeric: tabular-nums; }
+  #zeitLohn.gefallen b { color: #9d2f2a; }
+  body.touch #hud { display: none; }
+
+  /* ---------- Zeitsprung-Zwischenbild ---------- */
+  #zeitsprung {
+    position: fixed;
+    inset: 0;
+    background: #1b1510;
+    z-index: 26;   /* über dem Toast (25) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 26px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  #zeitsprung.hidden { display: none; }
+  /* Auf demselben Papier wie Quellen und Aufgaben – kein Gold auf Schwarz. */
+  #zeitsprungKarte {
+    border: 26px solid transparent;
+    border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+    max-width: 640px;
+    margin-bottom: 24px;
+    padding: 0 6px;
+  }
+  #zeitsprungJahr { font-size: 24px; font-weight: bold; color: #7a4a18; margin-bottom: 16px; }
+  #zeitsprungText { font-size: 17px; line-height: 1.6; color: #2b2318; margin-bottom: 18px; }
+  #zeitsprungLohn { font-size: 16px; color: #2b2318; }
+  #zeitsprungLohn .alt { color: #6b6152; text-decoration: line-through; }
+  #zeitsprungLohn .neu { color: #9d2f2a; font-weight: bold; }
+  #zeitsprungWeiter {
+    padding: 10px 20px;
+    font-size: 15px;
+    min-height: 34px;
+  }
+</style>
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="zeitLeiste" class="hidden">
+  <div id="zeitJahr"></div>
+  <div id="zeitLohn"></div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="zeitsprung" class="hidden">
+  <div id="zeitsprungKarte">
+    <div id="zeitsprungJahr"></div>
+    <div id="zeitsprungText"></div>
+    <div id="zeitsprungLohn"></div>
+  </div>
+  <button id="zeitsprungWeiter" class="holz">Die Straße wieder abgehen</button>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 3 – Dieselbe Straße, dreimal
+// ============================================================
+
+// Zoomfaktor nur EINMAL festlegen – er wird unten an mehreren Stellen
+// gebraucht (Konfiguration, Bretter, Meisterpositionen).
+const WELT_ZOOM = 1.5;
+
+const elZeit      = document.getElementById('zeitLeiste');
+const elZeitJahr  = document.getElementById('zeitJahr');
+const elZeitLohn  = document.getElementById('zeitLohn');
+const elSprung    = document.getElementById('zeitsprung');
+
+Spiel.registriereOverlay(elSprung);
+
+// Bretter für die geschlossenen Läden
+const brettBild = new Image();
+let brettBereit = false;
+brettBild.onload  = () => { brettBereit = true; };
+brettBild.src = '../../assets/ui/vernagelt.png';
+
+function aktuelleStufe() { return ZEITSTUFEN[STORY.jahr]; }
+
+function istOffen(id) {
+  return aktuelleStufe().offen.indexOf(id) !== -1;
+}
+
+// Vernagelte Türen werden über den Hintergrund gezeichnet. Die Engine ruft
+// diesen Haken innerhalb der Weltkoordinaten auf.
+function zeichneWelt(ctx) {
+  if (!brettBereit) return;
+  for (const tuer of AREAL3_TUEREN) {
+    if (istOffen(tuer.id)) continue;
+    const b = 250 * WELT_ZOOM, h = 200 * WELT_ZOOM;
+    ctx.drawImage(brettBild,
+      tuer.x * WELT_ZOOM - b / 2, tuer.y * WELT_ZOOM - h / 2, b, h);
+  }
+}
+
+// Geschlossene Meister treten aus ihrem Laden auf die Straße
+function setzeMeisterPositionen() {
+  for (const m of MEISTER) {
+    const npc = Spiel.npcNach(m.id);
+    if (!npc) continue;
+    // Wer geschlossen hat, steht etwas weiter vorne auf dem Pflaster
+    npc.y = (istOffen(m.id) ? 480 : 570) * WELT_ZOOM;
+  }
+}
+
+function aktualisiereLeiste() {
+  const s = aktuelleStufe();
+  elZeitJahr.textContent = s.titel;
+  elZeitLohn.innerHTML = 'Dein Wochenlohn: <b>' + s.lohn + ' Taler</b>';
+  elZeitLohn.classList.toggle('gefallen', STORY.jahr > 0);
+}
+
+function naechsteZeitstufe() {
+  const alt = aktuelleStufe();
+  STORY.jahr++;
+  STORY.besucht = [];
+  const neu = aktuelleStufe();
+
+  setzeMeisterPositionen();
+  aktualisiereLeiste();
+
+  document.getElementById('zeitsprungJahr').textContent = neu.titel;
+  document.getElementById('zeitsprungText').textContent = neu.ankunft;
+  document.getElementById('zeitsprungLohn').innerHTML =
+    'Dein Wochenlohn: <span class="alt">' + alt.lohn + ' Taler</span> → ' +
+    '<span class="neu">' + neu.lohn + ' Taler</span>';
+  elSprung.classList.remove('hidden');
+  Spiel.speichern();
+}
+
+document.getElementById('zeitsprungWeiter').addEventListener('click', () => {
+  elSprung.classList.add('hidden');
+});
+
+// ---------- Abschlussaufgabe ----------
+function openGate() {
+  Spiel.oeffneReihenfolge({
+    titel: 'Die Kette',
+    hinweis: 'Acht Jahre in einer Straße. Bring die Schritte in die Reihenfolge, ' +
+             'in der einer zum anderen geführt hat.',
+    schritte: KETTE,
+    aufgabe: 'Die Ursachenkette',
+    fragment: 'konzentration',
+    erfolgText: 'Genau so lief es. Jedes Glied zieht das nächste.',
+    weiterText: 'Weiter zu den Quellen',
+    onFertig: openQuellen
+  });
+}
+
+function openQuellen() {
+  Spiel.oeffneQuellen({
+    titel: 'Konzentration und Verelendung',
+    hinweis: 'Zwei kurze Sätze von Marx zu dem, was du in acht Jahren gesehen hast – ' +
+             'darunter jeweils unsere Erklärung. Zitat und Erklärung stehen abwechselnd; ' +
+             'unter jedem Kasten steht, was er ist.',
+    quellen: ['konzentration', 'konzentrationKurz', 'verelendung', 'verelendungKurz'].map(k => QUELLEN[k]),
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb, operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage, typ: f.typ,
+      optionen: f.optionen, richtig: f.richtig
+    })),
+    // Nicht "Originalquellen": beide Kästen sind Paraphrasen des Schulbuchs
+    aufgabe: 'Konzentration und Verelendung',
+    fragment: 'verelendung',
+    erfolgText: 'Richtig. Du kannst benennen, wie Konzentration und Verelendung zusammenhängen.',
+    weiterText: 'Weiter',
+    onFertig: () => {
+      STORY.gateBestanden = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+function openReflexion() {
+  Spiel.oeffneReflexion({
+    frage: REFLEXIONSFRAGE,
+    onFertig: () => Spiel.zeigeToast('Du kannst das Viertel jetzt verlassen.')
+  });
+}
+
+// Weiter in Areal 4: dort wird aus dem Erlittenen eine Entscheidung.
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 3 abgeschlossen: Das Stadtviertel',
+    text: 'Vier Werkstätten sind verschwunden, und dein Wochenlohn ist von 12 auf 6 Taler ' +
+          'gefallen. Du kannst jetzt zeigen, dass beides zusammenhängt – und dass niemand ' +
+          'es eigens so geplant hat. Heute Abend treffen sich fünfzig aus der Halle im ' +
+          'Hinterzimmer hinter der Schankstube. Sie wollen entscheiden, was sie tun. ' +
+          'Jemand muss es aussprechen.',
+    weiterLabel: 'Weiter zur Versammlung',
+    weiterZiel: '../areal4/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 3,
+  arealName: 'Areal 3 – Das Stadtviertel',
+  hintergrund: '../../assets/backgrounds/areal3_viertel.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+  uiPfad: '../../assets/ui/',
+
+  worldZoom: WELT_ZOOM,
+  authoredZoom: 1,
+  // Die Ladentüren sind 215 Bildpixel hoch (am Bild mit Gitter ausgemessen).
+  // Eine Tür ist rund 2 m, ein Mensch 1,70 m: 0,85 · 215 · Weltzoom ≈ 270.
+  spielerHoehe: 270,
+
+  zonen: AREAL3_ZONEN,
+  // Dicht an der Ladenzeile: Bei diesem Zoom zeigt der Ausschnitt 512 Pixel
+  // Höhe. Steht die Figur auf dem Gehweg, liegen Türen und Schaufenster darin;
+  // weiter unten auf dem Pflaster sähe man nur noch Kopfsteine.
+  startpunkt: { x: 400, y: 540 },
+  zeichneWelt: zeichneWelt,
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Sprich mit Karl Marx, dann geh die Straße ab. Bewegen mit WASD, sprechen mit E.',
+  startHinweisTouch: 'Sprich mit Karl Marx, dann geh die Straße ab. Wisch zum Laufen, tippe auf „Sprechen“.',
+
+  // Der Papierzettel mit Jahr und Lohn gehört ins Spiel, nicht auf den
+  // Startbildschirm – deshalb erst hier einblenden.
+  nachStart() { elZeit.classList.remove('hidden'); }
+});
+
+// Anfangszustand herstellen (auch nach "Weiterspielen" mit gespeichertem Jahr)
+setzeMeisterPositionen();
+aktualisiereLeiste();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Ungeschnittene Original-Bilder aus der Bildgenerierung.
+# Reines Arbeitsmaterial – das Spiel lädt sie nie, und sie machen rund zwei
+# Drittel des Speicherplatzes aus (54 von 84 MB). Die Dateien bleiben lokal
+# erhalten, sie werden nur nicht mit veröffentlicht.
+# Wer sie doch im Repository haben will, löscht die folgende Zeile.
+assets/characters/_raw-reference-sheets/
+
+# Betriebssystem und Editoren
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+
+# Zwischenstände beim Bildschneiden
+*.bak
+*.tmp
+*.neu

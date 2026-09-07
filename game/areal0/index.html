@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<!-- iPad: feste Skalierung, kein Doppeltipp-Zoom, Rand unter der Statusleiste -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 0 – Marktplatz</title>
+<link rel="stylesheet" href="../shared/engine.css">
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 0 – Verdrahtung von Inhalt und Engine
+// ============================================================
+
+// Das Abschlussquiz läuft in zwei Phasen: erst die Zuordnung nach M6,
+// danach die Arbeit an Marx' eigenen Worten (M11 und M10).
+function openGate() {
+  Spiel.oeffneZuordnung({
+    titel: 'Quellenanalyse: Die Klassengesellschaft',
+    hinweis: 'Marx unterscheidet im Kapitalismus zwei Klassen. Ordne jedes Merkmal der ' +
+             'richtigen Klasse zu.',
+    karten: GATE_KARTEN.map(k => ({ text: k.text, spalte: k.klasse })),
+    spalten: [
+      { key: 'B', label: 'Bourgeoisie' },
+      { key: 'P', label: 'Proletariat' }
+    ],
+    aufgabe: 'Klassengesellschaft: Zuordnung',
+    fragment: 'klassengesellschaft',
+    erfolgText: 'Alles richtig zugeordnet. Du hast den Unterschied zwischen den beiden Klassen erfasst.',
+    weiterText: 'Weiter zu Marx’ eigenen Worten',
+    onFertig: openQuellen
+  });
+}
+
+function openQuellen() {
+  Spiel.oeffneQuellen({
+    titel: 'Marx im Original',
+    hinweis: 'Jetzt liest du Marx’ eigene Worte. Zwei Zeichen wirst du öfter sehen: ' +
+             '<b>…</b> heißt, dass hier etwas weggelassen wurde, und <b>[eckige Klammern]</b> ' +
+             'markieren ein Wort, das jemand zur Verständlichkeit eingesetzt hat. ' +
+             'Beides gehört zum sauberen Zitieren dazu.',
+    quellen: ['m11', 'm10'].map(k => ({
+      ref: QUELLEN[k].ref,
+      zitat: QUELLEN[k].zitat,
+      nachweis: QUELLE_WERK
+    })),
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb,
+      operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage,
+      typ: f.typ,
+      optionen: f.optionen,
+      richtig: f.richtig
+    })),
+    aufgabe: 'Manifest: Quellenarbeit',
+    fragment: 'manifest',
+    erfolgText: 'Alle Fragen richtig. Du kannst Marx’ Originaltext auswerten.',
+    weiterText: 'Weiter',
+    onFertig: () => {
+      STORY.gateBestanden = true;
+      // Marx knüpft direkt an und stellt die Beurteilungsfrage
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+function openReflexion() {
+  Spiel.oeffneReflexion({
+    frage: REFLEXIONSFRAGE,
+    onFertig: () => Spiel.zeigeToast('Das Tor zur Spinnerei steht dir jetzt offen.')
+  });
+}
+
+// Abschluss des Areals: Zusammenfassung mit Codex, dann weiter in die Fabrik
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 0 abgeschlossen: Der Marktplatz',
+    text: 'Du weißt jetzt, in welche zwei Klassen Marx die Gesellschaft teilt und ' +
+          'warum er glaubt, dass sich Geschichte wiederholt. In der Spinnerei wirst du ' +
+          'sehen, wie aus dieser Ordnung Gewinn entsteht.',
+    weiterLabel: 'Weiter in die Spinnerei',
+    weiterZiel: '../areal1/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 0,
+  arealName: 'Areal 0 – Marktplatz',
+  hintergrund: '../../assets/backgrounds/areal0_marktplatz.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+
+  // Zonen und NPC-Positionen sind direkt Bildpixel, daher authoredZoom 1.
+  // Bei diesem Zoom rastet die Kamera an der Kartenunterkante ein: Der
+  // Ausschnitt steht senkrecht fest und zeigt dauerhaft die Fassadenzeile
+  // UND den ganzen Platz darunter.
+  worldZoom: 0.62,
+  authoredZoom: 1,
+  spielerHoehe: 131,
+
+  zonen: AREAL0_ZONEN,
+  startpunkt: { x: 1400, y: 1350 },   // mitten auf dem Platz, unterhalb der Stände
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Auf dem Marktplatz wartet Karl Marx auf dich. Geh zu ihm und drücke E.',
+  startHinweisTouch: 'Auf dem Marktplatz wartet Karl Marx. Wisch zum Laufen, tippe dann auf „Sprechen“.'
+});
+</script>
+
+</body>
+</html>

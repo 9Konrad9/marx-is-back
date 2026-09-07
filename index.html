@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Marx is back – Der Weg des Proletariers</title>
+<style>
+  :root { --papier: url(assets/ui/papier.jpg); --holz: url(assets/ui/holzknopf.jpg); }
+
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: #14100c;
+    font-family: sans-serif;
+    color: #ece4d4;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    padding: 26px 18px 60px 18px;
+    box-sizing: border-box;
+  }
+  .blatt { max-width: 900px; margin: 0 auto; }
+
+  h1 {
+    display: inline-block;
+    font-size: 24px; font-weight: normal;
+    margin: 0 0 6px 0; padding: 12px 26px;
+    border: 12px solid transparent;
+    border-image: var(--holz) 46 fill stretch;
+    color: #f3e6c6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+  }
+  .untertitel { font-size: 14px; color: #b9ae99; margin: 0 0 22px 0; line-height: 1.6; }
+
+  /* ---------- Namenszeile ---------- */
+  .namensfeld {
+    border: 20px solid transparent;
+    border-image: var(--papier) 60 fill stretch;
+    color: #2b2318;
+    padding: 0 4px;
+    margin-bottom: 22px;
+  }
+  .namensfeld label { display: block; font-size: 13px; color: #6a5c40; margin-bottom: 8px; }
+  .namensfeld input {
+    background: #f6efdd;
+    border: 2px solid #8d7c5a;
+    border-radius: 3px;
+    color: #2b2318;
+    font-family: inherit; font-size: 16px;
+    padding: 9px 12px; width: min(280px, 100%);
+    box-sizing: border-box;
+  }
+  .namensfeld input:focus { outline: none; border-color: #c49a3c; }
+  .namensfeld .hinweis { font-size: 12.5px; color: #6a5c40; margin-top: 8px; line-height: 1.55; }
+
+  /* ---------- Stationen ---------- */
+  .abschnitt {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #b9ae99; margin: 26px 0 12px 0; font-weight: normal;
+  }
+  .stationen {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+  }
+  .station {
+    border: 16px solid transparent;
+    border-image: var(--papier) 60 fill stretch;
+    color: #2b2318;
+    padding: 0 4px;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    display: block; width: 100%;
+    background: none;
+  }
+  .station:hover { filter: brightness(1.05); }
+  .station .nr {
+    font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: #8a7a5a; margin-bottom: 4px;
+  }
+  .station h3 {
+    margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #7a4a18;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .station p { margin: 0; font-size: 13px; line-height: 1.5; color: #4a4234; }
+  .station .stand { display: block; margin-top: 8px; font-size: 12px; font-weight: bold; }
+  .stand.offen    { color: #6a5c40; }
+  .stand.begonnen { color: #9a6a1a; }
+  .stand.fertig   { color: #4f7c46; }
+
+  /* ---------- Knöpfe ---------- */
+  .knopfreihe { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+  .holz {
+    background: none;
+    border: 8px solid transparent;
+    border-image: var(--holz) 46 fill stretch;
+    color: #f3e6c6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+    font-family: inherit; font-size: 15px;
+    padding: 12px 22px; min-height: 44px;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .holz:hover  { filter: brightness(1.12); }
+  .holz:active { filter: brightness(0.78); }
+  .holz:disabled { opacity: 0.4; cursor: default; filter: none; }
+  .holz.stark { color: #ffe08a; box-shadow: inset 0 0 0 2px #e8b84b; }
+
+  .fusszeile {
+    margin-top: 34px; font-size: 12px; line-height: 1.7; color: #7d7462;
+    border-top: 1px solid #33291f; padding-top: 16px;
+  }
+  .fusszeile a { color: #a89474; }
+</style>
+</head>
+<body>
+
+<div class="blatt">
+  <h1>Marx is back</h1>
+  <p class="untertitel">
+    Der Weg des Proletariers – ein Lernspiel zum Marxismus.<br>
+    Geschichte, Klasse 10b. Alles bleibt auf diesem Gerät gespeichert.
+  </p>
+
+  <div class="namensfeld">
+    <label for="name">Dein Name oder Kürzel</label>
+    <input id="name" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+    <div class="hinweis">
+      Schreib ihn immer genau gleich – dein Codex wird über alle Areale hinweg
+      unter diesem Namen gesammelt.
+    </div>
+  </div>
+
+  <h2 class="abschnitt">Die Stationen</h2>
+  <div class="stationen" id="stationen"></div>
+
+  <div class="knopfreihe">
+    <button class="holz stark" id="btnWeiter">Weiterspielen</button>
+    <button class="holz" id="btnCodex">Codex ansehen</button>
+    <button class="holz" id="btnZuruecksetzen">Neu beginnen</button>
+  </div>
+
+  <div class="fusszeile">
+    Die Quellen von Marx und Engels sowie die Blätter von Käthe Kollwitz sind
+    gemeinfrei; Herkunft und Lizenz stehen in
+    <code>assets/quellen/HERKUNFT.md</code>. Konzept und Aufbau:
+    <code>docs/konzept.md</code>.
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  Hauptmenü. Liegt bewusst auf oberster Ebene: So ist es zugleich
+//  die Einstiegsseite, die GitHub Pages von sich aus ausliefert.
+// ============================================================
+
+const STATIONEN = [
+  { nr: 0, ordner: 'areal0', titel: 'Der Marktplatz',
+    kurz: 'Klassengesellschaft und historischer Materialismus. Hier beginnt alles.' },
+  { nr: 1, ordner: 'areal1', titel: 'Die Fabrikhalle',
+    kurz: 'Drei Schichten am Webstuhl: Mehrwert und Ausbeutung, in Talern gerechnet.' },
+  { nr: 2, ordner: 'areal2', titel: 'An der Werkbank',
+    kurz: 'Vierzig gleiche Handgriffe im Takt der Maschine. Entfremdung.' },
+  { nr: 3, ordner: 'areal3', titel: 'Das Stadtviertel',
+    kurz: 'Dieselbe Straße dreimal, acht Jahre lang. Konzentration und Verelendung.' },
+  { nr: 4, ordner: 'areal4', titel: 'Der Versammlungsraum',
+    kurz: 'Klassenkampf – und eine Entscheidung, die dir niemand abnimmt.' },
+  { nr: 5, ordner: 'areal5', titel: 'Der Krisenplatz',
+    kurz: 'Volle Lager, verschlossenes Tor. Krise, Ziel und ein Blick in die Gegenwart.' },
+  { nr: 6, ordner: 'epilog', titel: 'Epilog: Petrograd 1917',
+    kurz: 'Ein kurzer Gang ohne Aufgabe. Der Ausblick auf die nächste Stunde.' }
+];
+
+const elName = document.getElementById('name');
+
+function lies(key, ersatz) {
+  try { return JSON.parse(localStorage.getItem(key) || ersatz); }
+  catch (e) { return JSON.parse(ersatz); }
+}
+
+function nameJetzt() { return elName.value.trim(); }
+
+// Fortschritt je Areal: gibt es einen Spielstand, und wurden schon Begriffe
+// unter diesem Namen abgelegt?
+function standVon(st) {
+  const name = nameJetzt();
+  if (!name) return 'offen';
+  const codex = lies('marxIsBack.codex', '[]')
+                  .filter(e => e.name === name && e.areal === st.nr);
+  const roh = localStorage.getItem('marxIsBack.spielstand.areal' + st.nr);
+  let begonnen = false;
+  if (roh) {
+    try { begonnen = JSON.parse(roh).name === name; } catch (e) { begonnen = false; }
+  }
+  // Der Epilog vergibt keine Begriffe – dort zählt allein der Spielstand.
+  if (st.nr === 6) return begonnen ? 'fertig' : 'offen';
+  if (codex.length) return 'fertig';
+  return begonnen ? 'begonnen' : 'offen';
+}
+
+const STAND_TEXT = { offen: 'Noch nicht begonnen', begonnen: 'Angefangen', fertig: 'Abgeschlossen' };
+
+function zeichneStationen() {
+  const behaelter = document.getElementById('stationen');
+  behaelter.innerHTML = '';
+  for (const st of STATIONEN) {
+    const s = standVon(st);
+    const b = document.createElement('button');
+    b.className = 'station';
+    b.innerHTML =
+      '<div class="nr">' + (st.nr === 6 ? 'Epilog' : 'Areal ' + st.nr) + '</div>' +
+      '<h3></h3><p></p><span class="stand ' + s + '">' + STAND_TEXT[s] + '</span>';
+    b.querySelector('h3').textContent = st.titel;
+    b.querySelector('p').textContent  = st.kurz;
+    b.addEventListener('click', () => starte(st.ordner));
+    behaelter.appendChild(b);
+  }
+}
+
+function starte(ordner) {
+  const name = nameJetzt();
+  if (!name) { elName.focus(); return; }
+  // Den Namen mitgeben, damit das Areal ihn nicht erneut abfragt.
+  localStorage.setItem('marxIsBack.name', name);
+  window.location.href = 'game/' + ordner + '/index.html';
+}
+
+// Weiterspielen: das erste Areal, das noch nicht abgeschlossen ist
+function ersteOffene() {
+  for (const st of STATIONEN) if (standVon(st) !== 'fertig') return st;
+  return STATIONEN[STATIONEN.length - 1];
+}
+
+document.getElementById('btnWeiter').addEventListener('click', () => {
+  starte(ersteOffene().ordner);
+});
+
+document.getElementById('btnCodex').addEventListener('click', () => {
+  const name = nameJetzt();
+  if (!name) { elName.focus(); return; }
+  localStorage.setItem('marxIsBack.name', name);
+  window.location.href = 'codex.html';
+});
+
+document.getElementById('btnZuruecksetzen').addEventListener('click', () => {
+  const name = nameJetzt();
+  if (!name) { elName.focus(); return; }
+  const sicher = window.confirm(
+    'Neu beginnen als "' + name + '"?\n\n' +
+    'Der gesammelte Codex, alle Ergebnisse und deine eigenen Antworten werden ' +
+    'gelöscht, und du fängst wieder bei Areal 0 an. Das lässt sich nicht ' +
+    'rückgängig machen.');
+  if (!sicher) return;
+
+  // Nur die Daten DIESES Namens entfernen – auf einem geteilten iPad
+  // dürfen die Sachen der anderen nicht mit verschwinden.
+  for (const key of ['marxIsBack.codex', 'marxIsBack.ergebnisse', 'marxIsBack.meinungen']) {
+    const rest = lies(key, '[]').filter(e => e.name !== name);
+    localStorage.setItem(key, JSON.stringify(rest));
+  }
+  for (const st of STATIONEN) {
+    const k = 'marxIsBack.spielstand.areal' + st.nr;
+    const roh = localStorage.getItem(k);
+    if (!roh) continue;
+    try { if (JSON.parse(roh).name === name) localStorage.removeItem(k); } catch (e) { /* egal */ }
+  }
+  zeichneStationen();
+});
+
+elName.addEventListener('input', () => {
+  localStorage.setItem('marxIsBack.name', nameJetzt());
+  zeichneStationen();
+});
+
+elName.value = localStorage.getItem('marxIsBack.name') || '';
+zeichneStationen();
+</script>
+
+</body>
+</html>

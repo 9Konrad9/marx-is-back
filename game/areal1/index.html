@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 1 – Fabrikhalle</title>
+<link rel="stylesheet" href="../shared/engine.css">
+<style>
+  /* ---------- Schicht am Webstuhl (nur in diesem Areal) ---------- */
+  #schichtOverlay {
+    position: fixed;
+    inset: 0;
+    background: #1b1510;
+    z-index: 19;
+    overflow-y: auto;
+    padding: 28px 20px;
+    box-sizing: border-box;
+    color: #f0ece4;
+  }
+  #schichtOverlay.hidden { display: none; }
+
+  /* Die Webfläche ist der größte Knopf des Spiels und trägt deshalb dasselbe
+     Holz wie alle übrigen Schaltflächen. */
+  #webFlaeche {
+    background: none;
+    border: 14px solid transparent;
+    border-image: url(../../assets/ui/holzknopf.jpg) 46 fill stretch;
+    padding: 18px 20px;
+    text-align: center;
+    color: #f3e6c6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.75);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    margin-bottom: 18px;
+  }
+  #webFlaeche:active { filter: brightness(0.78); }
+  #webFlaeche .gross { font-size: 22px; margin-bottom: 6px; }
+  #webFlaeche .klein { font-size: 13px; opacity: 0.8; }
+
+  .balken {
+    height: 26px;
+    background: #241d16;
+    border: 2px solid #6b5533;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .balken > div {
+    height: 100%;
+    background: #a8843a;
+    transition: width 0.12s linear;
+  }
+  .zaehler { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+
+  /* Kopfbild: der Webstuhl über dem Web-Knopf */
+  #webstuhlBild {
+    display: block;
+    margin: 0 auto 10px auto;
+    max-width: 340px;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Aus Baumwolle wird Stoff */
+  #verwandlung {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    margin: 6px 0 22px 0;
+  }
+  #verwandlung img { height: 84px; width: auto; }
+  #verwandlung .pfeil { font-size: 30px; color: #d8c9a8; }
+  #verwandlung .bildText { text-align: center; font-size: 12px; opacity: 0.7; margin-top: 4px; }
+
+  /* Wertaufteilung als Münzreihen */
+  .wertZeile {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #3a3128;
+  }
+  .wertName { flex: 0 0 175px; font-size: 14px; padding-top: 4px; }
+  .muenzen { flex: 1; display: flex; flex-wrap: wrap; gap: 3px; align-content: flex-start; }
+  .muenzen img { width: 26px; height: 26px; }
+  /* Farbring zeigt, wem die Münzen zufallen */
+  .muenzen.material img { box-shadow: 0 0 0 2px #5d6b7a; border-radius: 50%; }
+  .muenzen.lohn     img { box-shadow: 0 0 0 2px #4c8c4a; border-radius: 50%; }
+  .muenzen.mehrwert img { box-shadow: 0 0 0 2px #a86a3a; border-radius: 50%; }
+  .wertZahl { flex: 0 0 84px; text-align: right; font-size: 14px; padding-top: 4px; }
+
+  /* Die Bilanz der Schicht liegt als Zettel auf dem Grund, wie alle
+     Aufgaben- und Quellenkarten. */
+  .kontoBox {
+    background: none;
+    border: 22px solid transparent;
+    border-image: url(../../assets/ui/papier.jpg) 60 fill stretch;
+    color: #2b2318;
+    padding: 0 6px;
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  /* Holzplakette wie alle übrigen Knöpfe (Klasse "holz" aus engine.css) */
+  #schichtWeiter {
+    padding: 8px 16px;
+    font-size: 15px;
+    min-height: 30px;
+  }
+  #schichtWeiter.hidden { display: none; }
+  #ergebnisBereich.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="schichtOverlay" class="hidden">
+  <div class="gateInner">
+    <h2 id="schichtTitel">Deine Schicht am Webstuhl</h2>
+    <div class="gateSub" id="schichtUnter"></div>
+
+    <img id="webstuhlBild" src="../../assets/ui/webstuhl_detail.png" alt="">
+    <div id="webFlaeche">
+      <div class="gross">Weben</div>
+      <div class="klein">Tippe oder drücke die Leertaste, so schnell du kannst</div>
+    </div>
+    <div class="balken"><div id="webBalken" style="width:0%"></div></div>
+    <div class="zaehler" id="webZaehler"></div>
+
+    <div id="ergebnisBereich" class="hidden">
+      <div id="verwandlung">
+        <div>
+          <img src="../../assets/ui/baumwolle.png" alt="">
+          <div class="bildText">Rohe Baumwolle</div>
+        </div>
+        <div class="pfeil">→</div>
+        <div>
+          <img src="../../assets/ui/stoffballen.png" alt="">
+          <div class="bildText">Fertiger Stoff</div>
+        </div>
+      </div>
+
+      <h2 style="font-size:17px">Was deine Schicht wert war</h2>
+      <div class="wertZeile">
+        <div class="wertName">Material (Baumwolle)</div>
+        <div class="muenzen material" id="bMaterial"></div>
+        <div class="wertZahl" id="zMaterial"></div>
+      </div>
+      <div class="wertZeile">
+        <div class="wertName">Dein Lohn</div>
+        <div class="muenzen lohn" id="bLohn"></div>
+        <div class="wertZahl" id="zLohn"></div>
+      </div>
+      <div class="wertZeile">
+        <div class="wertName">Bleibt beim Besitzer</div>
+        <div class="muenzen mehrwert" id="bMehrwert"></div>
+        <div class="wertZahl" id="zMehrwert"></div>
+      </div>
+
+      <div class="kontoBox" id="kontoBox"></div>
+      <div class="gateSub" id="schichtKommentar"></div>
+    </div>
+
+    <button id="schichtWeiter" class="holz hidden">Weiter</button>
+  </div>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 1 – Schicht am Webstuhl, Mehrwert-Aufteilung, Aufgabe
+// ============================================================
+
+const elSchicht   = document.getElementById('schichtOverlay');
+const elWebFlaeche= document.getElementById('webFlaeche');
+const elWebBalken = document.getElementById('webBalken');
+const elWebZaehler= document.getElementById('webZaehler');
+const elErgebnis  = document.getElementById('ergebnisBereich');
+const elWeiter    = document.getElementById('schichtWeiter');
+const elUnter     = document.getElementById('schichtUnter');
+const elKommentar = document.getElementById('schichtKommentar');
+
+Spiel.registriereOverlay(elSchicht);
+
+let bahnen = 0;          // in dieser Schicht gewebte Bahnen
+let schichtLaeuft = false;
+let aktuelleSchicht = null;
+
+function starteSchicht() {
+  aktuelleSchicht = SCHICHTEN[STORY.schichten];
+  bahnen = 0;
+  schichtLaeuft = true;
+
+  elUnter.textContent = 'Schicht ' + (STORY.schichten + 1) + ' von ' + SCHICHTEN.length +
+                        ' · Vorgabe: ' + aktuelleSchicht.bahnen + ' Bahnen Stoff';
+  elWebFlaeche.style.display = '';
+  elErgebnis.classList.add('hidden');
+  elWeiter.classList.add('hidden');
+  aktualisiereBalken();
+  elSchicht.classList.remove('hidden');
+}
+
+function aktualisiereBalken() {
+  const anteil = Math.min(1, bahnen / aktuelleSchicht.bahnen);
+  elWebBalken.style.width = (anteil * 100) + '%';
+  elWebZaehler.textContent = bahnen + ' von ' + aktuelleSchicht.bahnen + ' Bahnen';
+}
+
+function webeEinmal() {
+  if (!schichtLaeuft) return;
+  bahnen++;
+  aktualisiereBalken();
+  if (bahnen >= aktuelleSchicht.bahnen) beendeSchicht();
+}
+
+elWebFlaeche.addEventListener('click', webeEinmal);
+window.addEventListener('keydown', e => {
+  if (elSchicht.classList.contains('hidden')) return;
+  if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); webeEinmal(); }
+});
+
+function muenzenZeigen(id, anzahl) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  for (let i = 0; i < anzahl; i++) {
+    const img = document.createElement('img');
+    img.src = '../../assets/ui/taler.png';
+    img.alt = '';
+    el.appendChild(img);
+  }
+}
+
+function beendeSchicht() {
+  schichtLaeuft = false;
+  const s = aktuelleSchicht;
+  const mehrwert = s.wert - s.material - s.lohn;
+
+  STORY.schichten++;
+  STORY.erzeugt    += s.wert;
+  STORY.ausgezahlt += s.lohn;
+
+  // Aufteilung als Münzen zeigen: eine Münze je Taler. Das ist für die
+  // Schülis greifbarer als Prozentbalken – man sieht die Stapel direkt.
+  muenzenZeigen('bMaterial', s.material);
+  muenzenZeigen('bLohn',     s.lohn);
+  muenzenZeigen('bMehrwert', mehrwert);
+  document.getElementById('zMaterial').textContent = s.material + ' Taler';
+  document.getElementById('zLohn').textContent     = s.lohn + ' Taler';
+  document.getElementById('zMehrwert').textContent = mehrwert + ' Taler';
+
+  document.getElementById('kontoBox').innerHTML =
+    'Stoff im Wert von <b>' + s.wert + ' Talern</b> ist entstanden.<br>' +
+    'Insgesamt von dir erzeugt: <b>' + STORY.erzeugt + ' Taler</b><br>' +
+    'Insgesamt an dich ausgezahlt: <b>' + STORY.ausgezahlt + ' Taler</b>';
+
+  elKommentar.textContent = kommentarZurSchicht();
+
+  elWebFlaeche.style.display = 'none';
+  elErgebnis.classList.remove('hidden');
+  elWeiter.classList.remove('hidden');
+  elWeiter.textContent = STORY.schichten >= SCHICHTEN.length
+    ? 'Schicht beenden' : 'Weiter';
+
+  Spiel.speichern();
+}
+
+function kommentarZurSchicht() {
+  if (STORY.schichten === 1) {
+    return 'Die Baumwolle war 6 Taler wert. Jetzt ist sie 20 Taler wert. ' +
+           'Den Unterschied hast du mit deinen Händen gemacht.';
+  }
+  if (STORY.schichten === 2) {
+    return 'Zweite Schicht, gleiches Bild. Sprich mit dem Fabrikbesitzer – ' +
+           'er hat etwas angekündigt.';
+  }
+  return 'Mehr Stoff als vorher, aber weniger Lohn. Der Anteil, der beim Besitzer ' +
+         'bleibt, ist von 10 auf 19 Taler gewachsen.';
+}
+
+elWeiter.addEventListener('click', () => {
+  elSchicht.classList.add('hidden');
+
+  // Nach der zweiten Schicht stellt der Fabrikbesitzer die neue Maschine auf
+  if (STORY.schichten === 2 && !STORY.maschineDa) {
+    STORY.maschineDa = true;
+    Spiel.zeigeToast('Über Nacht wurde eine neue, schnellere Maschine aufgestellt.');
+  } else if (STORY.schichten >= SCHICHTEN.length) {
+    STORY.lohnGesenkt = true;
+    Spiel.zeigeToast('Deine Schichten sind abgearbeitet. Karl Marx wartet am Eingang.');
+  }
+  Spiel.speichern();
+});
+
+// ---------- Abschlussaufgabe ----------
+function openGate() {
+  Spiel.oeffneZuordnung({
+    titel: 'Wer bekommt was?',
+    hinweis: 'Du hast drei Schichten gearbeitet. Ordne jede Aussage der richtigen Seite zu.' +
+             '',
+    karten: GATE_KARTEN.map(k => ({ text: k.text, spalte: k.klasse })),
+    spalten: [
+      { key: 'U', label: 'Fabrikbesitzer' },
+      { key: 'A', label: 'Arbeiter' }
+    ],
+    aufgabe: 'Mehrwert: Wer bekommt was?',
+    fragment: 'mehrwert',
+    erfolgText: 'Richtig. Du hast den Weg des Werts durch die Fabrik nachvollzogen.',
+    weiterText: 'Weiter zu den Quellen',
+    onFertig: openQuellen
+  });
+}
+
+function openQuellen() {
+  Spiel.oeffneQuellen({
+    titel: 'Mehrwert und Ausbeutung',
+    hinweis: 'Oben steht Marx wörtlich, darunter zwei seiner Kernthesen in heutiger ' +
+             'Sprache. Achte auf den Unterschied: Nur der erste Kasten ist ein Zitat.',
+    quellen: ['kapital', 'mehrwert', 'ausbeutung'].map(k => QUELLEN[k]),
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb, operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage, typ: f.typ,
+      optionen: f.optionen, richtig: f.richtig
+    })),
+    aufgabe: 'Mehrwert und Ausbeutung: Quellenarbeit',
+    fragment: 'ausbeutung',
+    erfolgText: 'Alle Fragen richtig. Du kannst benennen, woher der Gewinn kommt.',
+    weiterText: 'Weiter',
+    onFertig: () => {
+      STORY.gateBestanden = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+function openReflexion() {
+  Spiel.oeffneReflexion({
+    frage: REFLEXIONSFRAGE,
+    onFertig: () => Spiel.zeigeToast('Du kannst die Halle jetzt durch die Tür verlassen.')
+  });
+}
+
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 1 abgeschlossen: Die Fabrikhalle',
+    text: 'Du hast ' + STORY.erzeugt + ' Taler an Stoff gewebt und ' + STORY.ausgezahlt +
+          ' Taler dafür bekommen. Du kannst jetzt benennen, wo der Unterschied geblieben ist ' +
+          'und warum er mit jeder neuen Maschine größer wird. In der nächsten Halle wirst du ' +
+          'sehen, was diese Arbeit darüber hinaus mit dem Menschen selbst macht.',
+    weiterLabel: 'Weiter an die Werkbank',
+    weiterZiel: '../areal2/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 1,
+  arealName: 'Areal 1 – Fabrikhalle',
+  hintergrund: '../../assets/backgrounds/areal1_fabrikhalle.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+
+  // Zonen und NPC-Positionen sind hier direkt Bildpixel, daher authoredZoom 1.
+  // Kleiner Zoom, damit fast die ganze Halle auf einen Blick sichtbar ist –
+  // hier soll nicht erkundet, sondern gearbeitet werden.
+  worldZoom: 0.55,
+  authoredZoom: 1,
+  spielerHoehe: 200,   // Webstühle geben den Maßstab vor, nicht Häuser
+
+  zonen: AREAL1_ZONEN,
+  startpunkt: { x: 1430, y: 960 },   // im Mittelgang vor dem Webstuhl
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Sprich zuerst mit dem alten Arbeiter. Bewegen mit WASD, sprechen mit E.',
+  startHinweisTouch: 'Sprich zuerst mit dem alten Arbeiter. Wisch zum Laufen, tippe auf „Sprechen“.'
+});
+</script>
+
+</body>
+</html>

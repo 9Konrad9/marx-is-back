@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 2 – An der Werkbank</title>
+<link rel="stylesheet" href="../shared/engine.css">
+<style>
+  /* ---------- Schicht an der Werkbank ----------
+     Bewusst karg gehalten: Anders als in der Fabrikhalle gibt es hier keine
+     Münzen, keine Bilanz, kein wachsendes Ergebnis. Nur einen Zähler. */
+  #taktOverlay {
+    position: fixed;
+    inset: 0;
+    background: #1b1510;
+    z-index: 19;
+    overflow-y: auto;
+    padding: 28px 20px;
+    box-sizing: border-box;
+    color: #f0ece4;
+  }
+  #taktOverlay.hidden { display: none; }
+
+  /* Die Station: ein Schlitz, in dem das Rohteil erscheint */
+  /* Der Stanzkopf ist aus dem Hintergrundbild dieses Areals ausgeschnitten –
+     dieselbe Maschine, an der die Figur draußen in der Halle steht. */
+  #station {
+    background: #17171a url(../../assets/ui/werkbank_detail.jpg) center top / auto 128% repeat-x;
+    border: 2px solid #4a3f30;
+    border-radius: 8px;
+    height: 220px;
+    margin: 18px 0 14px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    position: relative;
+    overflow: hidden;
+  }
+  #station.aktiv { border-color: #a8843a; }
+  /* Das Werkstück liegt unter dem Stanzkopf im Schlitz. */
+  #teil {
+    width: 124px;
+    height: 46px;
+    margin-bottom: 10px;
+    background: linear-gradient(#9a9aa2 0%, #7c7c85 42%, #5e5e66 60%, #4a4a52 100%);
+    border: 2px solid #26262c;
+    border-radius: 3px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.35),
+                inset 0 -3px 0 rgba(0,0,0,0.45),
+                0 3px 7px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.06s linear;
+  }
+  #teil.da { opacity: 1; }
+  #stationText {
+    position: absolute;
+    top: 8px;
+    left: 0; right: 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    text-align: center;
+    font-size: 13px;
+    color: #b9ae99;
+  }
+
+  #taktZaehler {
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  #taktRueckmeldung {
+    text-align: center;
+    font-size: 14px;
+    min-height: 22px;
+    margin-top: 8px;
+    color: #b9b2a2;
+  }
+  #taktMeldung {
+    text-align: center;
+    font-size: 15px;
+    min-height: 24px;
+    margin-top: 14px;
+    color: #ecdcc0;
+  }
+  #taktEnde { margin-top: 22px; }
+  #taktEnde.hidden { display: none; }
+  #taktWeiter {
+    padding: 8px 16px;
+    font-size: 15px;
+    min-height: 30px;
+  }
+</style>
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="taktOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Schicht an der Werkbank</h2>
+    <div class="gateSub" id="taktUnter"></div>
+
+    <div id="station">
+      <div id="teil"></div>
+      <div id="stationText">Greifen, sobald das Teil im Schlitz liegt</div>
+    </div>
+
+    <div id="taktZaehler"></div>
+    <div id="taktRueckmeldung"></div>
+    <div id="taktMeldung"></div>
+
+    <div id="taktEnde" class="hidden">
+      <div class="gateSub" id="taktBilanz"></div>
+      <button id="taktWeiter" class="holz">Feierabend</button>
+    </div>
+  </div>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 2 – Die monotone Schicht
+//  Der Takt gehört der Maschine, nicht der Schüli: Zu früh gegriffen
+//  zählt nicht, verpasst zählt nicht. Man kann nicht schneller fertig
+//  werden – nur mitkommen. Genau das ist der Punkt.
+// ============================================================
+
+const elTakt       = document.getElementById('taktOverlay');
+const elStation    = document.getElementById('station');
+const elTeil       = document.getElementById('teil');
+const elZaehler    = document.getElementById('taktZaehler');
+const elRueck      = document.getElementById('taktRueckmeldung');
+const elMeldung    = document.getElementById('taktMeldung');
+const elEnde       = document.getElementById('taktEnde');
+const elBilanz     = document.getElementById('taktBilanz');
+const elTaktUnter  = document.getElementById('taktUnter');
+
+Spiel.registriereOverlay(elTakt);
+
+let takte = 0;            // ausgegebene Takte insgesamt
+let geschafft = 0;
+let verpasst = 0;
+let teilDa = false;
+let laeuft = false;
+let taktTimer = null, fensterTimer = null;
+
+function starteSchicht() {
+  takte = 0; geschafft = 0; verpasst = 0;
+  teilDa = false; laeuft = true;
+  elTaktUnter.textContent = 'Vorgabe: ' + SCHICHT.ziel + ' Handgriffe. Die Maschine gibt den Takt vor.';
+  elMeldung.textContent = '';
+  elRueck.textContent = '';
+  elEnde.classList.add('hidden');
+  elStation.style.display = '';
+  zeichneZaehler();
+  elTakt.classList.remove('hidden');
+  naechsterTakt();
+}
+
+function zeichneZaehler() {
+  elZaehler.textContent = 'Handgriff ' + geschafft + ' von ' + SCHICHT.ziel;
+}
+
+function aktuellerTakt() {
+  return geschafft >= SCHICHT.tempoAb ? SCHICHT.taktSchnell : SCHICHT.taktStart;
+}
+
+function naechsterTakt() {
+  if (!laeuft) return;
+
+  // Sicherung fürs Klassenzimmer: Die Schicht endet auch dann, wenn jemand
+  // viel verpasst – sonst könnte sie beliebig lange laufen. Gezählt wird,
+  // was tatsächlich geschafft wurde.
+  if (takte >= SCHICHT.ziel * 2) { beendeSchicht(); return; }
+
+  const dauer = aktuellerTakt();
+
+  // Ein Teil erscheint im Schlitz
+  takte++;
+  teilDa = true;
+  elTeil.classList.add('da');
+  elStation.classList.add('aktiv');
+
+  // ... und verschwindet wieder, ob gegriffen wurde oder nicht
+  fensterTimer = setTimeout(() => {
+    if (teilDa) {
+      teilDa = false;
+      verpasst++;
+      elRueck.textContent = 'Verpasst.';
+    }
+    elTeil.classList.remove('da');
+    elStation.classList.remove('aktiv');
+  }, dauer * SCHICHT.fensterAnteil);
+
+  taktTimer = setTimeout(naechsterTakt, dauer);
+}
+
+function greifen() {
+  if (!laeuft) return;
+  if (!teilDa) {
+    elRueck.textContent = 'Zu früh. Der Takt gehört nicht dir.';
+    return;
+  }
+  teilDa = false;
+  geschafft++;
+  elTeil.classList.remove('da');
+  elStation.classList.remove('aktiv');
+  elRueck.textContent = '';
+  zeichneZaehler();
+
+  if (TAKT_MELDUNGEN[geschafft]) elMeldung.textContent = TAKT_MELDUNGEN[geschafft];
+  if (geschafft >= SCHICHT.ziel) beendeSchicht();
+}
+
+elStation.addEventListener('click', greifen);
+window.addEventListener('keydown', e => {
+  if (elTakt.classList.contains('hidden')) return;
+  if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); greifen(); }
+});
+
+function beendeSchicht() {
+  laeuft = false;
+  clearTimeout(taktTimer);
+  clearTimeout(fensterTimer);
+  teilDa = false;
+  elTeil.classList.remove('da');
+  elStation.classList.remove('aktiv');
+  elStation.style.display = 'none';
+  elMeldung.textContent = 'Feierabend.';
+
+  STORY.schichtFertig = true;
+  STORY.handgriffe = geschafft;
+  STORY.verpasst = verpasst;
+
+  // Bewusst keine Bilanz in Geld: Es gibt schlicht nichts zu bilanzieren.
+  elBilanz.innerHTML =
+    'Du hast <b>' + geschafft + ' Handgriffe</b> gemacht' +
+    (verpasst ? ' und <b>' + verpasst + '</b> Takte verpasst' : '') + '.<br>' +
+    'Was daraus geworden ist, hast du nicht gesehen.';
+  if (geschafft < SCHICHT.ziel) {
+    elBilanz.innerHTML += '<br>Die Schicht ist trotzdem vorbei. Die Maschine hat nicht auf dich gewartet.';
+  }
+  elEnde.classList.remove('hidden');
+
+  Spiel.speichern();
+}
+
+document.getElementById('taktWeiter').addEventListener('click', () => {
+  elTakt.classList.add('hidden');
+  Spiel.zeigeToast('Die Schicht ist vorbei. Karl Marx wartet.');
+  Spiel.speichern();
+});
+
+// ---------- Abschlussaufgabe ----------
+function openGate() {
+  Spiel.oeffneQuellen({
+    titel: 'Was dir genommen wird',
+    hinweis: 'Oben steht Marx selbst, darunter unsere Erklärung dazu. ' +
+             'Nur der obere Kasten ist ein Zitat – achte auf den Unterschied.',
+    quellen: [QUELLEN.manifest, QUELLEN.erklaerung],
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb, operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage, typ: f.typ,
+      optionen: f.optionen, richtig: f.richtig
+    })),
+    aufgabe: 'Entfremdung: Quellenarbeit',
+    fragment: 'entfremdung',
+    erfolgText: 'Richtig. Du kannst benennen, was diese Arbeit mit dem Menschen macht.',
+    weiterText: 'Weiter',
+    onFertig: () => {
+      STORY.gateBestanden = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+function openReflexion() {
+  Spiel.oeffneReflexion({
+    frage: REFLEXIONSFRAGE,
+    onFertig: () => Spiel.zeigeToast('Du kannst die Halle jetzt verlassen.')
+  });
+}
+
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 2 abgeschlossen: An der Werkbank',
+    text: 'Vierzig Handgriffe, kein Ergebnis in der Hand. Du weißt jetzt aus eigener ' +
+          'Erfahrung, was Marx meint, wenn er von Entfremdung spricht – und warum das ' +
+          'etwas anderes ist als bloße Erschöpfung. Was in dieser Halle mit dir geschieht, ' +
+          'geschieht draußen mit ganzen Straßenzügen.',
+    weiterLabel: 'Hinaus ins Stadtviertel',
+    weiterZiel: '../areal3/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 2,
+  arealName: 'Areal 2 – An der Werkbank',
+  hintergrund: '../../assets/backgrounds/areal2_werkbank.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+  uiPfad: '../../assets/ui/',
+
+  // Zonen und Positionen sind direkt Bildpixel, daher authoredZoom 1
+  worldZoom: 0.55,
+  authoredZoom: 1,
+  spielerHoehe: 200,
+
+  zonen: AREAL2_ZONEN,
+  startpunkt: { x: 880, y: 1180 },   // vor der eigenen Station
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Sprich zuerst mit dem alten Arbeiter. Bewegen mit WASD, sprechen mit E.',
+  startHinweisTouch: 'Sprich zuerst mit dem alten Arbeiter. Wisch zum Laufen, tippe auf „Sprechen“.'
+});
+</script>
+
+</body>
+</html>

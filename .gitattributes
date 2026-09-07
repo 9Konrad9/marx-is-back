@@ -1,0 +1,9 @@
+# Zeilenenden im Repository einheitlich als LF ablegen, im Arbeitsverzeichnis
+# unter Windows als CRLF auschecken. Ohne das meldet Git bei jedem Commit
+# Änderungen an Dateien, die niemand angefasst hat.
+* text=auto
+
+# Bilder niemals als Text behandeln
+*.png binary
+*.jpg binary
+*.jpeg binary

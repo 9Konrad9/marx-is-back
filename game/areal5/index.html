@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Areal 5 – Der Krisenplatz</title>
+<link rel="stylesheet" href="../shared/engine.css">
+</head>
+<body>
+
+<div id="charSelect">
+  <div id="fortsetzenBox" class="hidden">
+    <h1>Willkommen zurück</h1>
+    <p id="fortsetzenInfo"></p>
+    <div class="startBtns">
+      <button id="btnFortsetzen" class="startBtn primary">Weiterspielen</button>
+      <button id="btnNeu" class="startBtn">Neu beginnen</button>
+    </div>
+  </div>
+
+  <div id="neuBox">
+    <h1>Wähle deine Figur</h1>
+    <div id="nameRow">
+      <label for="nameInput">Dein Name oder Kürzel <b>(Pflichtfeld, für die Auswertung)</b></label>
+      <input id="nameInput" type="text" maxlength="30" placeholder="z. B. Lena M." autocomplete="off">
+      <div id="nameFehler">Bitte trag zuerst deinen Namen ein.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-gender="m">
+        <img src="../../assets/characters/worker_m/worker_m_front_idle.png" alt="Männliche Figur">
+        <div>Männlich</div>
+      </div>
+      <div class="option" data-gender="f">
+        <img src="../../assets/characters/worker_f/worker_f_front_idle.png" alt="Weibliche Figur">
+        <div>Weiblich</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hud">
+  Bewegen: WASD / Pfeiltasten &nbsp;·&nbsp; <b>E</b>: Sprechen &nbsp;·&nbsp; <b>C</b>: Codex<br>
+  <span style="opacity:0.55">F2: Zonen-Editor</span>
+</div>
+<canvas id="gameCanvas"></canvas>
+
+<div id="interactHint" class="hidden"></div>
+<button id="btnCodex" class="touchBtn hidden">Codex</button>
+<button id="btnAktion" class="touchBtn hidden">Sprechen</button>
+
+<div id="dialogBox" class="hidden">
+  <img id="dialogPortrait" alt="">
+  <div id="dialogMain">
+    <div id="dialogName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogHint"></div>
+  </div>
+</div>
+
+<div id="gateOverlay" class="hidden">
+  <div class="gateInner">
+    <h2></h2>
+    <div class="gateSub"></div>
+    <div id="gateCards"></div>
+    <div class="gateFeedback" id="gateFeedback"></div>
+    <button id="gateCheck">Antwort prüfen</button>
+  </div>
+</div>
+
+<div id="reflexionOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Deine Position</h2>
+    <div class="gateSub">Hier gibt es kein Richtig und kein Falsch. Diese Antwort wird nicht bewertet.</div>
+    <div id="reflexionFrage"></div>
+    <textarea id="reflexionText" placeholder="Schreib in ein paar Sätzen, was du denkst …"></textarea>
+    <div id="reflexionHinweis">Deine Antwort landet in deinem Theorie-Codex und dient im Unterricht als Diskussionsgrundlage.</div>
+    <button id="reflexionSpeichern" class="gateBtn" style="padding:11px 22px;font-size:15px;">Antwort speichern</button>
+  </div>
+</div>
+
+<div id="codexOverlay" class="hidden">
+  <div class="gateInner">
+    <h2>Theorie-Codex</h2>
+    <div class="gateSub">Deine gesammelten Begriffe. Mit <b>C</b> oder <b>Escape</b> schließen.</div>
+    <div id="codexList"></div>
+  </div>
+</div>
+
+<div id="abschlussOverlay" class="hidden">
+  <div class="gateInner">
+    <div id="abschlussKopf"></div>
+    <div id="abschlussCodex"></div>
+    <div class="abschlussBtns">
+      <button id="abschlussWeiter"></button>
+      <button id="abschlussZurueck">Zurück ins Areal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<div id="exportOverlay" class="hidden">
+  <div id="exportHint">Text mit Strg+C kopieren und in zonen.js einfügen. Escape zum Schließen.</div>
+  <textarea id="exportBox" readonly></textarea>
+</div>
+
+<script src="../shared/engine.js"></script>
+<script src="zonen.js"></script>
+<script src="inhalt.js"></script>
+<script>
+// ============================================================
+//  Areal 5 – Krise, Ziel, Gegenwart und zum Schluss der Blick
+//  auf die Erzählung selbst
+// ============================================================
+
+// ---------- Zug 2: die Krise und das Ziel (M16 + Manifest) ----------
+function oeffneZiel() {
+  Spiel.oeffneQuellen({
+    titel: 'Warum es stillsteht – und worauf es hinauslaufen soll',
+    hinweis: 'Marx im Wortlaut, unsere Erklärung dazu, und noch ein Zitat zum Ziel. ' +
+             'Achte darauf, was Zitat ist und was nicht – das wird gleich noch wichtig.',
+    quellen: ['krise', 'kriseKurz', 'manifest'].map(k => QUELLEN[k]),
+    fragen: QUELLEN_FRAGEN.map(f => ({
+      afb: f.afb, operator: f.operator,
+      quelleRef: QUELLEN[f.quelle].ref,
+      frage: f.frage, typ: f.typ,
+      optionen: f.optionen, richtig: f.richtig
+    })),
+    aufgabe: 'Krise und klassenlose Gesellschaft',
+    fragment: 'krise',
+    erfolgText: 'Richtig. Du kannst benennen, warum volle Lager und leere Hände zusammengehören.',
+    weiterText: 'Weiter',
+    onFertig() {
+      STORY.gate1 = true;
+      // Zweites Fragment: das Ziel steht im Manifest-Zitat, nicht in M16
+      Spiel.schalteFragmentFrei('klassenlos');
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+// ---------- Zug 3: der Vergleich zweier Betriebe von heute ----------
+// bezugWort: 'Darstellung' – das sind ausdrücklich keine Quellen, und die
+// Beschriftung der Kästen muss das sagen.
+function oeffneVergleich() {
+  Spiel.oeffneQuellen({
+    titel: 'Zwei Antworten auf dieselbe Frage',
+    hinweis: 'Zwei Betriebe deiner Zeit – und dahinter zwei Vorstellungen davon, wem gehören ' +
+             'soll, womit gearbeitet wird. Beides sind <b>Darstellungen</b>, keine Quellen: ' +
+             'Niemand aus diesen Betrieben kommt selbst zu Wort, jemand hat beschrieben, was er ' +
+             'für wichtig hält, und dabei ausgewählt.',
+    bezugWort: 'Darstellung',
+    quellen: DARSTELLUNGEN.map(d => ({
+      ref: d.titel, punkte: d.punkte, nachweis: d.art
+    })),
+    fragen: VERGLEICH_FRAGEN,
+    aufgabe: 'Vergleich Amazon / Mondragón',
+    erfolgText: 'Richtig. Du kannst Marx’ Begriffe auf Betriebe anwenden, die er nie gesehen hat.',
+    weiterText: 'Weiter',
+    fragment: 'ordnungen',
+    onFertig() {
+      STORY.gate2 = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+// ---------- Zug 4: eigene Positionierung ----------
+function oeffnePosition() {
+  Spiel.oeffneReflexion({
+    frage: POSITIONSFRAGE,
+    feld: 'position',
+    onFertig() {
+      STORY.positionGestellt = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+// ---------- Zug 5: dieselben acht Jahre, zwei Erzählungen ----------
+function oeffneErzaehlungen() {
+  Spiel.oeffneZuordnung({
+    titel: 'Zwei Erzählungen, dieselben acht Jahre',
+    hinweis: 'Jede dieser sechs Aussagen ist wahr – keine davon ist erfunden, und du hast ' +
+             'alle sechs im Spiel selbst gesehen oder gehört. Ordne zu, in welcher der ' +
+             'beiden Erzählungen sie vorkommt.',
+    karten: ERZAEHLUNGEN,
+    spalten: [
+      { key: 'du', label: 'So hast du es erzählt' },
+      { key: 'er', label: 'So erzählt es der Fabrikbesitzer' }
+    ],
+    aufgabe: 'Zwei Erzählungen derselben acht Jahre',
+    fragment: 'narrativ',
+    erfolgText: 'Alles richtig. Und jetzt sieh dir an, was dabei herauskommt.',
+    weiterText: 'Zu Marx',
+    onFertig() {
+      STORY.gate3 = true;
+      Spiel.starteDialog(Spiel.npcNach('marx'));
+    }
+  });
+}
+
+// ---------- Zug 5b: die letzte Frage, gegen das Spiel selbst ----------
+function oeffneNarrativfrage() {
+  Spiel.oeffneReflexion({
+    frage: NARRATIVFRAGE,
+    feld: 'narrativMeinung',
+    onFertig() {
+      STORY.narrativGestellt = true;
+      Spiel.zeigeToast('Du kannst den Platz jetzt verlassen.');
+    }
+  });
+}
+
+// ---------- Abschluss ----------
+// Weiter in den Epilog: Petrograd 1917, kurz vor der Oktoberrevolution.
+function zeigeAbschluss() {
+  Spiel.oeffneAbschluss({
+    titel: 'Areal 5 abgeschlossen: Der Krisenplatz',
+    text: 'Du hast gesehen, warum das System nach Marx an seinem eigenen Erfolg erstickt, ' +
+          'und was er an seine Stelle setzen wollte. Und du weißt jetzt, dass die Geschichte, ' +
+          'die dir dieses Spiel erzählt hat, eine Auswahl war – eine begründete, aber eben eine.',
+    weiterLabel: 'Weiter',
+    weiterZiel: '../epilog/index.html'
+  });
+}
+
+Spiel.start({
+  areal: 5,
+  arealName: 'Areal 5 – Der Krisenplatz',
+  hintergrund: '../../assets/backgrounds/areal5_krisenplatz.jpg',
+  npcPfad: '../../assets/characters/npcs/',
+  spielerPfad: '../../assets/characters/',
+  uiPfad: '../../assets/ui/',
+
+  // Zonen und NPC-Positionen sind direkt Bildpixel, daher authoredZoom 1.
+  worldZoom: 0.75,
+  authoredZoom: 1,
+  spielerHoehe: 275,
+
+  zonen: AREAL5_ZONEN,
+  // Der Hof ist viermal so breit wie der Bildausschnitt. Der Startpunkt liegt
+  // deshalb vor dem verriegelten Tor: Wartende, Tor und Marx stehen im ersten
+  // Bild, Marktstände und Feuertonne findet man beim Umsehen.
+  startpunkt: { x: 1250, y: 900 },
+
+  story: STORY,
+  fragmente: FRAGMENTS,
+  npcs: NPCS,
+  dialoge: DIALOGE,
+
+  startHinweisTastatur: 'Sieh dich auf dem Platz um und sprich mit den Wartenden. Bewegen mit WASD, sprechen mit E.',
+  startHinweisTouch: 'Sieh dich auf dem Platz um und sprich mit den Wartenden. Wisch zum Laufen, tippe auf „Sprechen“.'
+});
+</script>
+
+</body>
+</html>
