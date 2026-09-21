@@ -10,18 +10,22 @@
 //   2. Er lässt die Schülis ihre eigene Quelle wiedererkennen: Der Vorleser
 //      liest den Schlusssatz des Manifests vor, den sie in Areal 0 analysiert
 //      haben. Siebzig Jahre später, in einer anderen Sprache, auf der Straße.
-//   3. Er reicht den Narrativbegriff an die Folgestunde weiter, ohne ihn
-//      noch einmal zu erklären.
+//   3. Er reicht den Narrativbegriff weiter, ohne ihn noch einmal zu erklären.
 //
 // Der Zeitpunkt liegt bewusst VOR der Oktoberrevolution: Der Zar ist seit
 // dem Frühjahr weg, der Krieg läuft weiter, und es ist offen, wer regieren
-// wird. Der Oktober ist der erste Satz der nächsten Stunde, nicht der letzte
-// dieser.
+// wird.
 //
 // Zwei Redner, und der Unterschied ist der Punkt: Der erste bleibt anonym
 // und liest Marx vor – die Sätze aus Areal 0. Der zweite hat einen Namen,
-// Lenin, und sagt etwas anderes als Marx. Genau dieser Bruch ist die Brücke
-// zur Folgestunde.
+// Lenin, und denkt Marx weiter, weil Russland nicht das Land ist, das Marx
+// beschrieben hat.
+//
+// Seit die Unterrichtsreihe China vor Russland stellt, ist Petrograd nicht
+// mehr das Ende, sondern die Zwischenstation. Lenin steht deshalb als kurzer
+// Ausblick da und nicht als Lehrstoff; von hier geht es weiter nach
+// Schanghai, wo derselbe Bruch ein zweites Mal passiert – eine Stufe weiter
+// weg von Marx.
 //
 // Die Spielfigur bleibt dieselbe wie in allen Arealen. Sie ist nicht
 // dieselbe Person – sie steht an derselben Stelle in der Gesellschaft.
@@ -152,11 +156,10 @@ const DIALOGE = {
     };
   },
 
-  // Der zweite Redner ist nicht mehr anonym. Er ist der Grund, warum die
-  // Folgestunde nicht mehr von Marx handelt: Marx erwartete die Revolution
-  // in den am weitesten entwickelten Industrieländern – Russland war das
-  // Gegenteil davon. Was Lenin daraus macht, ist der Bruch, an dem die
-  // nächste Einheit ansetzt.
+  // Der zweite Redner ist nicht mehr anonym: Lenin denkt Marx weiter, weil
+  // Russland nicht das Land ist, das Marx beschrieben hat. Bewusst kurz
+  // gehalten – die Russland-Einheit kommt erst nach China. Hier steht er als
+  // Ausblick, nicht als Lehrstoff: ein Name, ein Satz, eine offene Rechnung.
   lenin() {
     if (STORY.gesehen.indexOf('lenin') !== -1) {
       return { lines: [
@@ -168,17 +171,15 @@ const DIALOGE = {
       lines: [
         'Weiter hinten, näher am offenen Tor, steht ein zweiter Mann auf einer Kiste. ' +
         'Dieser hier hat einen Namen, und alle in der Menge kennen ihn: Lenin.',
-        '„Man sagt uns, Russland sei nicht so weit. Man sagt, erst müsse das Land Fabriken ' +
-        'bauen, eine Bourgeoisie heranwachsen lassen, und dann, viel später, komme unsere Zeit."',
-        '„Marx hat das so beschrieben, ja. Er sah die Revolution dort kommen, wo die Industrie ' +
-        'am weitesten ist – in England, in Deutschland. Nicht bei uns."',
-        '„Aber sehen Sie sich um. Der Krieg hat die Ordnung zerschlagen, die uns aufhalten sollte. ' +
-        'Die Soldaten laufen davon, die Bauern nehmen sich das Land, in den Betrieben entscheiden ' +
-        'die Räte. Worauf sollen wir warten?"',
-        '„Was fehlt, ist nicht die Zeit. Was fehlt, ist eine Partei, die weiß, was sie will, und ' +
-        'die zugreift, wenn der Augenblick da ist."',
-        '„Frieden. Land. Brot. Und alle Macht den Räten."',
-        'Er redet von Marx – und er sagt etwas anderes als Marx.'
+        '„Man sagt uns, Russland sei nicht so weit. Erst müsse das Land Fabriken bauen, ' +
+        'und dann, viel später, komme unsere Zeit."',
+        '„Marx hat das so beschrieben, ja. Er sah die Revolution dort kommen, wo die ' +
+        'Industrie am weitesten ist. Nicht bei uns. – Aber sehen Sie sich um. Worauf ' +
+        'sollen wir warten?"',
+        '„Frieden. Land. Brot."',
+        'Er beruft sich auf Marx und denkt ihn weiter: eine Revolution in einem Land, ' +
+        'das Marx gar nicht gemeint hatte.',
+        'Was daraus wird, ist eine eigene Geschichte. Die kommt in einer anderen Stunde.'
       ],
       after() { merkeGesehen('lenin'); }
     };
@@ -198,7 +199,9 @@ const DIALOGE = {
         'und dahinter lagerte Tuch, das niemand kaufen konnte.',
         'Dieses hier steht offen, und an einem Flügel hängt eine rote Fahne.',
         'Was in den Wochen danach geschieht, steht in keinem Buch, das Marx geschrieben hat. ' +
-        'Es ist erst danach passiert.'
+        'Es ist erst danach passiert.',
+        'Und es bleibt nicht hier. Die Flugblätter, die Sätze, der Name Marx – sie gehen ' +
+        'weiter nach Osten, dorthin, wo noch weniger von dem steht, was Marx beschrieben hat.'
       ],
       after() { zeigeAbschluss(); }
     };

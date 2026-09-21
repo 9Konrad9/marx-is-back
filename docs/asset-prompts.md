@@ -832,3 +832,71 @@ darunter liegen, sonst verdeckt ihre Vorderseite die Beine. Dafür gibt es jetzt
 Bildschirmpixel hoch – eine Figur misst 176 px bei 1,70 m, also sind 100 px
 etwa ein Meter, und die Kiste kommt damit auf gut einen halben. Beide Redner
 stehen 61 Bildpixel über dem Boden, damit die Füße auf der Deckfläche landen.
+
+---
+
+## China-Szene: Schanghai, März 1927 (Außenbereich)
+
+**Kontext:** Seit die Reihe China vor Russland stellt, endet das Spiel nicht
+mehr in Petrograd. Petrograd wird zur Zwischenstation, Lenin steht dort nur
+noch als Ausblick – und die Schlussszene liegt in Schanghai.
+
+**Warum dieser Ort und dieser Monat:** Im März 1927 nehmen streikende Arbeiter
+Schanghai selbst ein, rund 5.000 Bewaffnete, getragen von den Gewerkschaften
+der Baumwollspinnereien. Im selben Frühjahr schreibt Mao seinen Bericht aus
+Hunan: Die Revolution komme nicht aus den Städten, sondern von den Bauern. Im
+April lässt Chiang Kai-shek die Aufständischen in Schanghai niedermachen. Die
+Szene liegt bewusst **vor** dem April – genau wie Petrograd vor dem Oktober
+liegt: Es ist noch nicht entschieden.
+
+**Die Klammer zum Spielanfang:** Baumwollspinnereien. Dieselben Maschinen,
+dieselbe Baumwolle wie in Areal 1, achtzig Jahre später und am anderen Ende
+der Welt. Wer in Areal 1 gezählt hat, was eine Schicht wert war, erkennt die
+Ballen wieder.
+
+**Keine Schrift im Bild.** Weder chinesische noch lateinische. Falsch
+geschriebene Zeichen auf einem Unterrichtsmaterial wären peinlich, und der
+Stilguide verbietet Text ohnehin. Die roten Fahnen bleiben deshalb leer.
+
+**Prompt:**
+```
+[Stilguide siehe oben] +
+
+A wide top-down city street scene in a Chinese industrial mill
+district of the 1920s, drawn in the hybrid top-down perspective
+described above.
+
+Along the entire upper edge of the image, as a continuous band: the
+long soot-stained brick wall of a cotton spinning mill, seen from the
+front, with a row of tall barred factory windows and a distinctive
+sawtooth north-light roof above it. In the middle of this wall a
+large wooden double gate, closed, flanked by two brick posts. Behind
+the roofline a single tall brick chimney, not smoking. To the left
+end of the band, the narrow entrance of a residential lane between
+two-storey tenement houses with wooden shutters and laundry poles
+sticking out over the street.
+
+Against the mill wall, to the right of the gate, a stack of large
+bound cotton bales in dirty off-white sacking.
+
+The entire lower two thirds of the image is open, walkable street
+seen strictly from directly above: packed earth and worn stone
+paving, wet in places, with shallow puddles reflecting the grey sky,
+scattered litter and soot. This ground must stay clearly LIGHTER in
+value than the buildings and the wall, so that walkable and blocked
+areas are easy to tell apart.
+
+The single colour accent in an otherwise grey and rust-brown image:
+two or three plain red cloth banners hanging from the mill gate and
+one red flag on a pole beside the lane entrance. The red is the only
+saturated colour anywhere in the picture.
+
+No people, no figures, no animals, no vehicles anywhere in the image.
+No text, no signage, no lettering, no characters or symbols of any
+kind on the banners, the walls or the gate.
+```
+
+**Nach der Generierung:** über den Download-Button sichern und im
+Hauptverzeichnis ablegen; ich lege sie als
+`assets/backgrounds/china_schanghai.jpg` ab und komprimiere sie wie die
+übrigen Hintergründe auf Qualität 82.

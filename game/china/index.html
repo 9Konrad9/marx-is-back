@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Epilog – Petrograd 1917</title>
+<title>Schanghai 1927 – Die letzte Szene</title>
 <link rel="stylesheet" href="../shared/engine.css">
 <style>
   /* ---------- Titelkarte zu Beginn ---------- */
@@ -107,7 +107,7 @@
   <button id="auftaktWeiter" class="holz">Weiter</button>
 </div>
 
-<!-- Aufgaben- und Reflexionsfenster gibt es im Epilog nicht. Die Hüllen
+<!-- Aufgaben- und Reflexionsfenster gibt es in dieser Szene nicht. Die Hüllen
      bleiben trotzdem stehen: die Engine greift sie beim Laden ab und
      fragt sie ab, um zu erkennen, ob gerade ein Fenster offen ist. -->
 <div id="gateOverlay" class="hidden">
@@ -145,7 +145,7 @@
     <div id="abschlussCodex"></div>
     <div class="abschlussBtns">
       <button id="abschlussWeiter"></button>
-      <button id="abschlussZurueck">Zurück auf den Platz</button>
+      <button id="abschlussZurueck">Zurück auf die Straße</button>
     </div>
   </div>
 </div>
@@ -162,42 +162,18 @@
 <script src="inhalt.js"></script>
 <script>
 // ============================================================
-//  Epilog – Petrograd, Herbst 1917
-//  Kein Gate, kein Begriff. Ein Gang, drei Stationen, ein Ausblick.
+//  Schanghai, März 1927 – die Schlussszene
+//  Kein Gate, kein Begriff. Ein Gang, vier Stationen, ein offenes Ende.
 // ============================================================
 
 const elAuftakt = document.getElementById('auftakt');
 Spiel.registriereOverlay(elAuftakt);
 
-// Zoomfaktor nur einmal festlegen – Konfiguration und Kisten brauchen ihn.
+// Die Figur ist hier 280 Bildpixel hoch: am fertigen Bild gegen Mauer, Tor
+// und Baumwollballen abgeglichen. Mal Weltzoom ergibt das 252 Bildschirmpixel
+// und passt damit zu Areal 3 und 5.
 const WELT_ZOOM = 0.9;
 
-// ---------- Die beiden Rednerkisten ----------
-// Beide Redner stehen auf einer umgedrehten Kiste; im Text steht es, also muss
-// man es auch sehen. Die Kiste wird über den Boden-Haken gezeichnet, damit die
-// Figuren darüber liegen und nicht hinter der Vorderkante verschwinden.
-// Höhe rund 0,5 m: Eine Figur ist 176 px bei 1,70 m, also sind 100 px ≈ 1 m.
-const KISTE_HOEHE = 55;
-const KISTEN = [
-  { x: 1700, y:  980 },   // der anonyme Vorleser
-  { x: 2450, y: 1060 }    // Lenin
-];
-
-const kisteBild = new Image();
-let kisteBereit = false;
-kisteBild.onload = () => { kisteBereit = true; };
-kisteBild.src = '../../assets/ui/kiste.png';
-
-function zeichneKisten(ctx) {
-  if (!kisteBereit) return;
-  const b = KISTE_HOEHE * (kisteBild.naturalWidth / kisteBild.naturalHeight);
-  for (const k of KISTEN) {
-    ctx.drawImage(kisteBild,
-                  k.x * WELT_ZOOM - b / 2,
-                  k.y * WELT_ZOOM - KISTE_HOEHE,
-                  b, KISTE_HOEHE);
-  }
-}
 
 // Der Starthinweis erscheint gleichzeitig mit der Titelkarte und wäre verklungen,
 // bevor man sie weggeklickt hat. Deshalb liegt die Karte darüber, und der
@@ -223,30 +199,39 @@ document.getElementById('auftaktWeiter').addEventListener('click', () => {
 });
 
 // ---------- Schluss ----------
-// Petrograd ist seit der Umstellung der Reihenfolge nicht mehr das Ende,
-// sondern die Zwischenstation: Die Russland-Einheit kommt erst nach China,
-// deshalb wird Lenin hier nur benannt und weitergereicht.
+// Kein weiterZiel: Hier endet das Spiel. Der Knopf entfällt dann von selbst,
+// und es bleibt nur der Weg zurück auf die Straße.
+//
+// Der Text nennt zuerst, was drei Wochen später passiert, weil die Szene
+// sonst offen bliebe, wo die Geschichte es nicht ist. Mao wird hier zum
+// ersten und einzigen Mal genannt – als Verfasser des Berichts, den der Bote
+// mitgebracht hat, und ohne ein einziges Zitat (Schutzfrist bis 2046).
 function zeigeAbschluss() {
   Spiel.oeffneAbschluss({
-    titel: 'Petrograd bleibt zurück',
-    text: 'Du hast zwei Redner gehört. Der eine las Marx vor – dieselben Sätze, die du auf ' +
-          'dem Marktplatz auseinandergenommen hast, siebzig Jahre alt und in einer anderen ' +
-          'Sprache. Der andere hat einen Namen: Lenin. Er beruft sich auf Marx und denkt ihn ' +
-          'weiter. Marx erwartete die Revolution dort, wo die Industrie am weitesten ist; ' +
-          'Russland war das Gegenteil davon. Lenin hielt das nicht für einen Einwand, sondern ' +
-          'für eine Gelegenheit. Was er daraus macht und was Russland daraus wird, ist eine ' +
-          'eigene Geschichte – die kommt in einer anderen Stunde. Hier zählt nur, dass die ' +
-          'Sätze nicht liegen bleiben. Sie gehen weiter nach Osten, in ein Land, in dem noch ' +
-          'weniger von dem steht, was Marx beschrieben hat.',
-    weiterLabel: 'Zehn Jahre weiter: Schanghai',
-    weiterZiel: '../china/index.html'
+    titel: 'Hier hört das Spiel auf',
+    text: 'Drei Wochen nach diesem Tag, am 12. April 1927, lässt Chiang Kai-shek die ' +
+          'Arbeiterverbände in Schanghai überfallen. Der Weg über die Städte endet dort. ' +
+          'Der Mann, der den Bericht aus Hunan geschrieben hatte, hieß Mao Zedong – und er ' +
+          'ging aufs Land. Damit steht am Ende dieses Spiels dieselbe Bewegung dreimal: ' +
+          'Marx erwartete die Revolution dort, wo die Industrie am weitesten ist. Lenin ' +
+          'machte sie in einem Agrarland und nannte es trotzdem Marx. In China wurden die ' +
+          'Bauern zu dem, was bei Marx die Fabrikarbeiter waren – noch einen Schritt weiter ' +
+          'weg von dem, was er beschrieben hat. Wer sich auf Marx beruft, sagt damit nicht, ' +
+          'was Marx gesagt hat. Er sagt, was er selbst will, und stellt einen Namen davor, ' +
+          'der Gewicht hat. Das ist der Begriff, mit dem du auf dem Krisenplatz aufgehört ' +
+          'hast. Aus den beiden Erzählungen von dort werden in den Jahrzehnten danach zwei ' +
+          'Staatsordnungen, die sich die halbe Welt aufteilen. Wie das in China ausgeht – ' +
+          'und warum ausgerechnet dort heute eine Partei regiert, die sich kommunistisch ' +
+          'nennt und die zweitgrößte Marktwirtschaft der Welt verwaltet –, das ist die ' +
+          'nächste Stunde.'
   });
 }
 
+
 Spiel.start({
-  areal: 6,
-  arealName: 'Epilog – Petrograd 1917',
-  hintergrund: '../../assets/backgrounds/epilog_petrograd.jpg',
+  areal: 7,
+  arealName: 'Schanghai, März 1927',
+  hintergrund: '../../assets/backgrounds/china_schanghai.jpg',
   npcPfad: '../../assets/characters/npcs/',
   spielerPfad: '../../assets/characters/',
   uiPfad: '../../assets/ui/',
@@ -254,14 +239,13 @@ Spiel.start({
   // Zonen und NPC-Positionen sind direkt Bildpixel, daher authoredZoom 1.
   worldZoom: WELT_ZOOM,
   authoredZoom: 1,
-  spielerHoehe: 170,
+  spielerHoehe: 252,
 
-  zeichneBoden: zeichneKisten,
 
-  zonen: EPILOG_ZONEN,
+  zonen: CHINA_ZONEN,
   // Links an der Ladenzeile, wo schon eine rote Fahne hängt. Nach rechts hin
   // wird das Rot dichter und endet am offenen Tor – der Weg ist die Steigerung.
-  startpunkt: { x: 820, y: 1080 },
+  startpunkt: { x: 380, y: 1240 },
 
   story: STORY,
   fragmente: FRAGMENTS,
