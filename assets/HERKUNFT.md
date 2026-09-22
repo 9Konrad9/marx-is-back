@@ -189,3 +189,74 @@ Körper sind breiter als sechs Pixel und bleiben dabei erhalten.
 den China-Figuren genau die Arm-Lücken wieder zumachen, die Schritt 2 gerade
 geöffnet hat. Die beiden Verfahren gehören zu verschiedenen Fehlern und dürfen
 nicht nacheinander auf dieselbe Datei angewendet werden.
+
+---
+
+## 9. Freistellen, dritter Durchgang – alle übrigen Bilder
+
+Nach den China-Assets wurde der ganze Bestand durchgemessen statt nur
+angesehen. Drei Prüfungen liefen über jede PNG-Datei:
+
+1. **Heller Saum:** mittlere Helligkeit der Pixel direkt an der Silhouetten­kante
+   gegen die Helligkeit sechs bis zwölf Pixel dahinter. Ein stehengebliebener
+   Hintergrundsaum macht die Kante systematisch heller als das Innere.
+2. **Eingeschlossene Blattgrund-Flächen:** farblose, flaue Gebiete, die keine
+   Verbindung nach außen haben – die Lücken zwischen Arm und Körper.
+3. **Löcher:** halbdurchsichtige Gebiete mitten in der Figur.
+
+Kontrolliert wurde jeder Treffer, indem die erkannten Gebiete grün eingefärbt
+und die Datei auf Magenta gelegt wurde. Gezeichnetes Weiß (die Baumwollflusen,
+die Leinwand der Ballen, das weiße Hemd des Fabrikbesitzers, die Fläche des
+Talers) sah dabei genauso aus wie Hintergrund und musste von Hand
+auseinandergehalten werden.
+
+### Was gefunden wurde
+
+| Fehler | Betroffen | Sichtbar als |
+|---|---|---|
+| **4–6 px weißer Rahmen** rings um die Holztextur | `ui/holzknopf.jpg` | weißer Saum um **jede** Schaltfläche, jede Überschrift und jedes Namensbanner – `border-image` zieht genau die äußerste Pixelreihe über die ganze Kante |
+| 1 px heller Saum | `ui/eisenschild.png` | helle Haarlinie rings um den Interaktions­hinweis |
+| Blattgrund in allen Rahmenfenstern | `ui/webstuhl_detail.png` | graue Flecken im Webstuhl, der im Schicht-Overlay direkt auf Schwarz liegt |
+| Blattgrund zwischen Arm und Körper | `npc_marktfrau`, `npc_dienstmaedchen`, `npc_arbeiter`, alle 16 Spielerposen | helle Flächen in den Achsel- und Beinlücken |
+| Grund durchgefressen, Reste an den Füßen | `npc_arbeitergruppe` | helle Linien quer durch die Mäntel, graue Klötze zwischen den Beinen |
+
+Nicht betroffen und deshalb unangetastet: die Hintergründe, die Kollwitz-Blätter,
+`papier.jpg`, `kiste.png`, `npc_lenin.png` und der gesamte China-Satz.
+
+### Was dagegen gemacht wurde
+
+Neu geschnitten aus den Originalen in `_raw-reference-sheets/`, mit
+`werkzeuge/FreistellerGrau.cs`. Der arbeitet wie der weiße Freisteller, aber
+die Schwelle hängt nicht an „fast weiß", sondern am **gemessenen** Blattgrund:
+Gemini hat je Blatt einen anderen Grauwert geliefert, von 129 bis 156. Der
+wird als Median des Randrings bestimmt, alle Vergleiche laufen als Abstand
+dazu.
+
+Dazu kam eine **Mindestdicke** für Schritt 2: Eine eingeschlossene Fläche wird
+nur entfernt, wenn irgendwo ein Quadrat von 2r+1 Pixeln hineinpasst. Ohne das
+riss der Schnitt beim Webstuhl die Lücken zwischen den Kettfäden auf, und das
+Bild sah zerfressen aus. Werte: r = 3 bei den Spielerposen (die Achsellücken
+sind dort nur rund 13 px breit), r = 8 bei den Einzelfiguren, r = 14 beim
+Webstuhl. Beim Taler ist Schritt 2 ganz abgeschaltet – seine Münzfläche **ist**
+Blattgrau, der Schnitt hätte das Gesicht ausgestanzt.
+
+**Die Spielerposen ohne Raten.** Das Referenzblatt hat sechs Spalten statt
+vier, doppelte Posen und keine spaltentreuen Blickrichtungen – die Zuordnung
+von Hand wäre die wahrscheinlichste Fehlerquelle gewesen. Stattdessen dienen
+die **vorhandenen** Dateien als Vorlage (`werkzeuge/Sprites.cs`): Für jede wird
+die Blattzelle gesucht, deren Silhouette am besten deckt, auch gespiegelt, und
+nur deren Pixel werden ersetzt. Die Deckungswerte lagen bei 0,94 bis 0,99, die
+Spiegelpaare (links/rechts) kamen dabei von selbst heraus. Bildgröße, Kasten
+und Fußpunkt bleiben damit exakt wie vorher – **kein einziges Sprite hat sich
+um einen Pixel verschoben**, alle Maße stimmen mit den alten Dateien überein.
+
+**Die Holztextur** wurde mit `werkzeuge/Zuschnitt.cs` neu aus dem Original
+beschnitten (600 × 331 statt 600 × 335) und mit Qualität 88 gespeichert. Eine
+Zeile zählt erst als Motiv, wenn ein Viertel von ihr vom Grund abweicht –
+einzelne JPEG-Sprenkel im weißen Rand sollen den Schnitt nicht verhindern.
+`papier.jpg` blieb bewusst unverändert: Ein neuer Schnitt hätte die gezeichnete
+dunkle Blattkante mit ins Bild geholt und jedem Dialogfenster einen Rahmen
+gegeben. Weiß war dort ohnehin keines.
+
+`eisenschild.png` wurde nur um 1 px rundum gestutzt (478 × 250); der
+`border-image`-Slice von 52 bleibt dabei gültig.
