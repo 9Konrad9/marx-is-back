@@ -920,8 +920,20 @@ Konfiguration steht `spielerPfad: '../../assets/characters/china/'`. Keine
 **Kleidung, knapp recherchiert:** Arbeiterinnen und Arbeiter in den
 Schanghaier Spinnereien trugen kurze, seitlich geknöpfte Baumwolljacken über
 weiten Hosen und Stoffschuhe. Studenten und Intellektuelle trugen das lange
-Gewand (changshan). Der Kegelhut gehört aufs Feld und nicht in die Stadt – er
-kommt nur beim Boten aus Hunan vor, und auch dort nur am Rücken hängend.
+Gewand (changshan) – deshalb unterscheidet sich der Student auf den ersten
+Blick von den Arbeitern, und genau darum geht es in der Szene. Der Kegelhut
+gehört aufs Feld und nicht in die Stadt; er kommt nur beim Boten aus Hunan vor
+und auch dort nur am Rücken hängend.
+
+**Hintergrundfarbe:** Alle sechs Prompts verlangen **weiß** statt des
+mittelgrauen Hintergrunds der ersten Figuren. Grund: Bei Lenin und der Kiste
+hat das Freistellen mit weißem Hintergrund in einem einzigen Durchgang
+funktioniert, während die Arbeitergruppe auf Grau zwei Anläufe gekostet hat –
+die gedämpfte grau-braune Kleidung liegt farblich zu nah am grauen Grund.
+
+**Jeder Prompt unten ist vollständig eigenständig** – kopieren, nichts
+ergänzen. Am besten je Figur ein frischer Gemini-Chat, damit kein Kontext aus
+dem vorherigen Bild einfließt.
 
 ### NPC 1: Die Spinnerinnen → `npc_spinnerinnen.png`
 
@@ -931,15 +943,16 @@ den Boden berühren; im Spiel steht die Höhe entsprechend niedriger als bei
 stehenden Figuren.
 
 ```
-[Stilguide für Figuren: dieselbe Tuschezeichnung mit weicher Kolorierung,
-bold black outlines, gedämpfte Palette wie bei den übrigen NPCs] +
+Detailed ink-and-wash style comic illustration with soft painterly
+cel-shading (visible fine linework and subtle textured shading, not
+perfectly flat single-color fills, similar to a moody graphic novel
+illustration), bold black outlines around major shapes, a dark,
+muted, weathered color palette (faded browns, grays, muted rust
+tones) matching a somber early 20th century industrial setting.
 
 A group of three Chinese women textile workers of the 1920s, sitting
 on the ground in a row, seen from the FRONT, leaning back as if
 against a wall behind them, legs drawn up or stretched out in front.
-Same ink-and-wash comic style with bold black outlines and muted
-grey-brown colouring as the other characters.
-
 They are mill workers, tired, in their twenties and thirties: plain
 short cotton jackets fastened at the side over loose trousers, cloth
 shoes, hair tied back or in a single braid. The fabric is worn and
@@ -947,101 +960,103 @@ faded, with pale cotton fluff clinging to sleeves and shoulders. One
 rests her hands in her lap, one has her eyes closed, one looks
 straight ahead.
 
-The whole group centred as one image, with generous empty margin on
-all four sides, and nothing beneath them: no wall, no ground line.
-
-Plain flat WHITE background, completely empty, no scenery, no floor,
-no shadow on the ground, no props, no text and no lettering anywhere.
+The whole group is centered in the image as one unit with generous
+even margins on all sides, and nothing beneath them: no wall, no
+ground line, no floor. The ENTIRE image background, edge to edge
+across the whole canvas, must be a single flat solid uniform WHITE —
+absolutely no scenery, no wall, no factory, no gradient, no other
+content anywhere in the image outside of the three figures. No text,
+no labels, no shadow on the ground.
 ```
 
 ### NPC 2: Der Streikposten → `npc_posten.png`
 
 ```
-[Stilguide für Figuren wie oben] +
+Detailed ink-and-wash style comic illustration with soft painterly
+cel-shading (visible fine linework and subtle textured shading, not
+perfectly flat single-color fills, similar to a moody graphic novel
+illustration), bold black outlines around major shapes, a dark,
+muted, weathered color palette (faded browns, grays, muted rust
+tones) matching a somber early 20th century industrial setting.
 
 A single full-body character illustration of a young Chinese man in
 his early twenties, standing upright and seen strictly from the
-FRONT, facing the viewer, in the same ink-and-wash comic style with
-bold black outlines and muted grey-brown colouring as the other
-characters.
+FRONT, facing the viewer, full body visible from his head down to his
+shoes. He is a striking mill worker standing guard: a plain short
+cotton jacket fastened at the side over loose trousers, a cloth belt,
+simple cloth shoes, short black hair and no hat. A RED cloth band is
+tied around his upper left arm — the only saturated color in the
+image. He holds a plain wooden stick upright in one hand like a
+staff, not raised, not threatening. His stance is watchful and a
+little tense.
 
-He is a striking mill worker standing guard: a plain short cotton
-jacket fastened at the side over loose trousers, a cloth belt, simple
-cloth shoes, short black hair and no hat. A RED cloth band is tied
-around his upper left arm, the only saturated colour in the image. He
-holds a plain wooden stick upright in one hand like a staff, not
-raised, not threatening. His stance is watchful and a little tense.
-
-Full body from head to shoes, standing on nothing, centred, with
-generous empty margin on all four sides.
-
-Plain flat WHITE background, completely empty, no floor, no shadow on
-the ground, no scenery, no props, no flag, no text and no lettering
-anywhere.
+The character is centered in the image with generous even margins on
+all sides. The ENTIRE image background, edge to edge across the whole
+canvas, must be a single flat solid uniform WHITE — absolutely no
+scenery, no gate, no factory, no flag, no gradient, no other content
+anywhere in the image outside of the single character. No text, no
+labels, no shadow on the ground.
 ```
 
 ### NPC 3: Der Student → `npc_student.png`
 
-Er muss sich auf den ersten Blick von den Arbeitern unterscheiden – das ist
-der Punkt der Szene: Er ist derjenige, der Marx gelesen hat.
-
 ```
-[Stilguide für Figuren wie oben] +
+Detailed ink-and-wash style comic illustration with soft painterly
+cel-shading (visible fine linework and subtle textured shading, not
+perfectly flat single-color fills, similar to a moody graphic novel
+illustration), bold black outlines around major shapes, a dark,
+muted, weathered color palette (faded browns, grays, muted rust
+tones) matching a somber early 20th century industrial setting.
 
 A single full-body character illustration of a young Chinese man of
 about twenty, standing upright and seen strictly from the FRONT,
-facing the viewer, in the same ink-and-wash comic style with bold
-black outlines and muted grey-brown colouring as the other
-characters.
-
+facing the viewer, full body visible from his head down to his shoes.
 He is a student, visibly not a labourer: he wears a long plain
-ankle-length scholar gown in faded dark blue-grey, fastened at the
+ankle-length scholar gown in faded dark blue-gray, fastened at the
 side, over cloth shoes. Short neatly cut hair, round wire-rimmed
 spectacles. He holds a thin closed book or folded pamphlet against
 his chest with both hands. His posture is upright, earnest, slightly
 formal.
 
-Full body from head to shoes, standing on nothing, centred, with
-generous empty margin on all four sides.
-
-Plain flat WHITE background, completely empty, no floor, no shadow on
-the ground, no scenery, no props, no text, no lettering and no
-writing on the book anywhere.
+The character is centered in the image with generous even margins on
+all sides. The ENTIRE image background, edge to edge across the whole
+canvas, must be a single flat solid uniform WHITE — absolutely no
+scenery, no furniture, no gradient, no other content anywhere in the
+image outside of the single character. No text, no labels, no writing
+on the book, no shadow on the ground.
 ```
 
 ### NPC 4: Der Mann aus Hunan → `npc_bote.png`
 
 ```
-[Stilguide für Figuren wie oben] +
+Detailed ink-and-wash style comic illustration with soft painterly
+cel-shading (visible fine linework and subtle textured shading, not
+perfectly flat single-color fills, similar to a moody graphic novel
+illustration), bold black outlines around major shapes, a dark,
+muted, weathered color palette (faded browns, grays, muted rust
+tones) matching a somber early 20th century industrial setting.
 
 A single full-body character illustration of a Chinese man of about
 forty, standing upright and seen strictly from the FRONT, facing the
-viewer, in the same ink-and-wash comic style with bold black outlines
-and muted grey-brown colouring as the other characters.
+viewer, full body visible from his head down to his feet. He is a
+farmer who has travelled a long way: a padded, patched cotton jacket
+over wide trousers tied at the ankle, a cloth belt, and worn straw
+sandals instead of city shoes. Weathered face, sun-darkened skin,
+short hair. A wide conical straw hat hangs on his back from a cord
+around his neck, NOT on his head. Under one arm he carries a thick
+bundle of loose papers tied with string.
 
-He is a farmer who has travelled a long way: a padded, patched cotton
-jacket over wide trousers tied at the ankle, a cloth belt, and worn
-straw sandals instead of city shoes. Weathered face, sun-darkened
-skin, short hair. A wide conical straw hat hangs on his back from a
-cord around his neck, not on his head. Under one arm he carries a
-thick bundle of loose papers tied with string.
-
-Full body from head to feet, standing on nothing, centred, with
-generous empty margin on all four sides.
-
-Plain flat WHITE background, completely empty, no floor, no shadow on
-the ground, no scenery, no other props, no text, no lettering and no
-writing on the papers anywhere.
+The character is centered in the image with generous even margins on
+all sides. The ENTIRE image background, edge to edge across the whole
+canvas, must be a single flat solid uniform WHITE — absolutely no
+scenery, no fields, no village, no gradient, no other content
+anywhere in the image outside of the single character. No text, no
+labels, no writing on the papers, no shadow on the ground.
 ```
 
-### Spielfigur: zwei Referenzblätter
+### NPC 5: Spielfigur männlich → `assets/characters/china/worker_m/`
 
-Gleiches Verfahren wie bei den europäischen Figuren: ein Blatt mit acht Posen
-(vier Richtungen × Stand/Schritt), das ich danach einzeln zuschneide. Wichtig
-ist der **einheitliche mittelgraue Hintergrund** – damit hat das Freistellen
-bei den ersten Blättern am besten funktioniert.
-
-#### Männlich → `assets/characters/china/worker_m/`
+Referenzblatt mit acht Posen, das ich danach in die Einzeldateien schneide.
 
 ```
 Detailed ink-and-wash style comic illustration with soft painterly
@@ -1067,18 +1082,23 @@ loose trousers, a cloth belt, simple cloth shoes, short black hair
 and no hat. The fabric is worn, faded and patched.
 
 The ENTIRE image background, edge to edge across the whole canvas,
-must be a single flat solid uniform mid-gray color — absolutely no
-scenery, no buildings, no machinery, no gradient, no other content
-anywhere in the image outside of the eight character poses. Every
-pose has equal margins and is centered in its grid cell. No text, no
-labels, no grid lines, no shadows on the ground.
+must be a single flat solid uniform WHITE — absolutely no scenery, no
+buildings, no machinery, no gradient, no other content anywhere in
+the image outside of the eight character poses. Every pose has equal
+margins and is centered in its grid cell. No text, no labels, no grid
+lines, no shadows on the ground.
 ```
 
-#### Weiblich → `assets/characters/china/worker_f/`
-
-Denselben Prompt verwenden, nur die beiden Figurenabsätze ersetzen:
+### NPC 6: Spielfigur weiblich → `assets/characters/china/worker_f/`
 
 ```
+Detailed ink-and-wash style comic illustration with soft painterly
+cel-shading (visible fine linework and subtle textured shading, not
+perfectly flat single-color fills, similar to a moody graphic novel
+illustration), bold black outlines around major shapes, a dark,
+muted, weathered color palette (faded browns, grays, muted rust
+tones) matching a somber early 20th century industrial setting.
+
 A character reference sheet showing the same young Chinese female
 mill worker of the 1920s in eight separate poses, arranged evenly in
 two horizontal rows of four with equal spacing and identical
@@ -1094,9 +1114,17 @@ cotton mill worker: a short cotton jacket fastened at the side over
 loose trousers, simple cloth shoes, and her black hair in a single
 braid down her back. The fabric is worn, faded and patched, with pale
 cotton fluff clinging to the sleeves.
+
+The ENTIRE image background, edge to edge across the whole canvas,
+must be a single flat solid uniform WHITE — absolutely no scenery, no
+buildings, no machinery, no gradient, no other content anywhere in
+the image outside of the eight character poses. Every pose has equal
+margins and is centered in its grid cell. No text, no labels, no grid
+lines, no shadows on the ground.
 ```
 
-**Nach der Generierung:** alle sechs über den Download-Button sichern und
-ablegen; ich stelle frei, schneide die Blätter in die acht Posen und stelle in
-`game/china/index.html` den `spielerPfad` um. Bis dahin läuft die Szene mit
-den europäischen Platzhaltern.
+**Nach der Generierung:** alle sechs über den echten Download-Button sichern
+(nicht per „Bild kopieren", sonst kommt nur eine komprimierte Vorschau) und
+ablegen; ich stelle frei, schneide die beiden Blätter in die acht Posen und
+stelle in `game/china/index.html` den `spielerPfad` um. Bis dahin läuft die
+Szene mit den europäischen Platzhaltern.
