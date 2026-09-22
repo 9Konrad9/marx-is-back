@@ -126,3 +126,29 @@ im Spiel tatsächlich gebraucht werden:
 Das ganze Repository liegt damit bei knapp 12 MB statt 25,5 MB. Die
 ungeschnittenen Generatorbilder in `_raw-reference-sheets/` (54 MB) sind über
 `.gitignore` ausgenommen und bleiben nur lokal.
+
+---
+
+## 7. Figuren der Schanghai-Szene
+
+Ebenfalls mit **Google Gemini** erzeugt, Prompts in
+[`../docs/asset-prompts.md`](../docs/asset-prompts.md).
+
+| Datei | Nachbearbeitung |
+|---|---|
+| `npcs/npc_spinnerinnen.png` | sitzende Dreiergruppe, randverbunden freigestellt |
+| `npcs/npc_posten.png` | freigestellt |
+| `npcs/npc_student.png` | freigestellt |
+| `npcs/npc_bote.png` | kam als Drei-Ansichten-Blatt statt als Einzelfigur; die linke Vorderansicht ist herausgeschnitten und freigestellt |
+| `characters/china/worker_m/`, `characters/china/worker_f/` | je acht Posen aus einem Referenzblatt geschnitten |
+
+**Beim Schneiden der Referenzblätter:** Gemini hat die Blickrichtungen nicht
+spaltenweise durchgehalten. Beim Mann schauen `pose3_idle` und `pose4_walk`
+nach rechts, `pose4_idle` und `pose3_walk` nach links – die Posen mussten
+also über die Spalten hinweg gepaart werden. Bei der Frau schauen **beide**
+Standposen nach rechts; die linke Standpose ist deshalb eine Spiegelung.
+Geprüft wurde das nicht nach Augenmaß, sondern über die Lage von Haut- und
+Haarpixeln im Kopfbereich: Das Haar sitzt am Hinterkopf, die Haut vorne.
+
+Wer die Blätter neu generiert, muss das erneut prüfen – eine vertauschte
+Richtung fällt im Spiel sofort auf, die Figur läuft dann rückwärts.
