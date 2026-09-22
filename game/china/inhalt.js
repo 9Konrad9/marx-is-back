@@ -56,30 +56,30 @@ const NPCS = [
   {
     id: 'spinnerinnen', name: 'Die Spinnerinnen',
     dativ: 'den Spinnerinnen',
-    x: 1450, y: 960,
-    file: 'npc_arbeitergruppe.png',
-    color: '#5f5344', height: 248
+    x: 1450, y: 890,   // sitzend an der Mauer, deshalb tiefer und flacher
+    file: 'npc_spinnerinnen.png',
+    color: '#5f5344', height: 150
   },
   {
     id: 'posten', name: 'Der Streikposten',
     dativ: 'dem Streikposten',
     x: 700, y: 1020,
-    file: 'npc_arbeiter.png',
-    color: '#6b5a44', height: 252
+    file: 'npc_posten.png',
+    color: '#6b5a44', height: 250
   },
   {
     id: 'student', name: 'Der Student',
     dativ: 'dem Studenten',
     x: 1080, y: 1180,
-    file: 'npc_kind.png',
-    color: '#7a5f4a', height: 240
+    file: 'npc_student.png',
+    color: '#7a5f4a', height: 246
   },
   {
     id: 'bote', name: 'Der Mann aus Hunan',
     dativ: 'dem Mann aus Hunan',
     x: 2350, y: 1050,
-    file: 'npc_aufseher.png',
-    color: '#5a4a3a', height: 256
+    file: 'npc_bote.png',
+    color: '#5a4a3a', height: 254
   },
   {
     id: 'tor', name: 'Das Tor der Spinnerei',
