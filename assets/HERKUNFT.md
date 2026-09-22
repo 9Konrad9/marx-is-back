@@ -152,3 +152,40 @@ Haarpixeln im Kopfbereich: Das Haar sitzt am Hinterkopf, die Haut vorne.
 
 Wer die Blätter neu generiert, muss das erneut prüfen – eine vertauschte
 Richtung fällt im Spiel sofort auf, die Figur läuft dann rückwärts.
+
+---
+
+## 8. Freistellen, zweiter Durchgang
+
+Auf dem iPad fielen helle Ränder auf, vor allem zwischen Körper und Armen.
+Zwei verschiedene Ursachen, beide behoben:
+
+**Heller Saum und eingeschlossene Flächen (China-Assets).** Die
+randverbundene Flutfüllung erreicht eingeschlossene Flächen prinzipbedingt
+nicht: Was zwischen Arm und Körper liegt, hat keine Verbindung zum Bildrand.
+Dazu kam ein heller Saum, den JPEG an den Konturen hinterlässt – diese Pixel
+liegen zwischen reinem Weiß und der schwarzen Linie und fielen durch die
+Schwelle. Der Freisteller in `werkzeuge/Freisteller.cs` macht jetzt drei
+Schritte:
+
+1. randverbundene Flutfüllung wie bisher,
+2. eingeschlossene Weißflächen zusätzlich entfernen, aber nur bei Mittelwert
+   über 244 und sehr geringer Streuung – gezeichnetes Weiß wie die
+   Baumwollflusen an den Ärmeln der Spinnerinnen oder das Papierbündel des
+   Boten hat Schattierung und bleibt stehen,
+3. weicher Saum: vom Hintergrund aus höchstens drei Schritte weit und nur über
+   helle Pixel. Dunkle Konturlinien blockieren und bleiben voll deckend.
+
+**Löcher in der Figur (europäische Arbeiterin).** Beim ursprünglichen
+Freistellen war die Toleranz zu hoch: Die helle Schürze lag farblich zu nah am
+mittelgrauen Blatthintergrund und wurde streckenweise mit weggeschnitten –
+teils ganz, teils als halbdurchsichtige Sprenkel. Im Spiel schien dort die
+Straße durch. Das Referenzblatt existiert nicht mehr, deshalb wurde repariert
+statt neu geschnitten: morphologisches Schließen der Alphamaske mit Radius 3,
+danach Auffüllen der Farbe aus der Umgebung. Echte Lücken zwischen Arm und
+Körper sind breiter als sechs Pixel und bleiben dabei erhalten.
+
+**Warum das nicht automatisch für alle Bilder läuft:** Das Schließen würde bei
+den China-Figuren genau die Arm-Lücken wieder zumachen, die Schritt 2 gerade
+geöffnet hat. Die beiden Verfahren gehören zu verschiedenen Fehlern und dürfen
+nicht nacheinander auf dieselbe Datei angewendet werden.
