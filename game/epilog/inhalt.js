@@ -174,7 +174,7 @@ const DIALOGE = {
         '„Man sagt uns, Russland sei nicht so weit. Erst müsse das Land Fabriken bauen, ' +
         'und dann, viel später, komme unsere Zeit."',
         '„Marx hat das so beschrieben, ja. Er sah die Revolution dort kommen, wo die ' +
-        'Industrie am weitesten ist. Nicht bei uns. – Aber sehen Sie sich um. Worauf ' +
+        'Industrie am weitesten ist. Nicht bei uns. – Aber seht euch um. Worauf ' +
         'sollen wir warten?"',
         '„Frieden. Land. Brot."',
         'Er beruft sich auf Marx und denkt ihn weiter: eine Revolution in einem Land, ' +

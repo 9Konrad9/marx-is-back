@@ -96,13 +96,15 @@ const FRAGMENTS = {
     title: 'Narrativ',
     kurz: 'Aus denselben Tatsachen lassen sich verschiedene Geschichten bauen, je nachdem, was man auswählt und weglässt.',
     text: 'Aus vielen einzelnen Tatsachen wird nicht von selbst eine Geschichte. Jemand muss ' +
-          'auswählen: Was kommt vor und was nicht, was steht am Anfang, was am Ende, worauf läuft ' +
-          'es hinaus. Diese Auswahl mitsamt der Deutung, die in ihr steckt, nennt man ein Narrativ. ' +
-          'Der Fabrikbesitzer und du habt dieselben acht Jahre erzählt, keiner von euch hat gelogen – ' +
-          'und trotzdem waren es zwei verschiedene Geschichten. Marx’ Erklärung des Kapitalismus ist ' +
-          'ein solches Narrativ, ein außerordentlich wirkungsmächtiges. Und dieses Spiel hat es dir ' +
-          'von innen erzählt: Du hast fünf Stationen lang genau das erlebt, was Marx vorhergesagt ' +
-          'hat. Das lag daran, dass es so gebaut wurde.',
+          'auswählen: was vorkommt, was wegbleibt, worauf es hinausläuft. Diese Auswahl mitsamt ' +
+          'der Deutung, die in ihr steckt, nennt man ein Narrativ. Der Fabrikbesitzer und du habt ' +
+          'dieselben acht Jahre erzählt, keiner von euch hat gelogen – und trotzdem waren es zwei ' +
+          'verschiedene Geschichten. Ein Narrativ ist aber keine Rechnung: Dass von deinen 70 ' +
+          'Talern nur 11 bei dir ankamen, ist nachprüfbar, und er bestreitet es auch nicht. ' +
+          'Gestritten wird über den Namen – Ausbeutung oder Preis des Risikos – und über die ' +
+          'Linie: bei Marx vom Klassenkampf über die Krise zur klassenlosen Gesellschaft, bei ihm ' +
+          'vom Mangel zum billigen Tuch. Dieses Spiel hat sich für eine der beiden entschieden. ' +
+          'Du hast fünf Stationen lang erlebt, was Marx vorhergesagt hat – weil es so gebaut wurde.',
     src: 'Begriff aus der Geschichtswissenschaft; Jahresthema der 10b'
   }
 };
@@ -411,7 +413,7 @@ const DIALOGE = {
     // Vor dem Narrativ-Teil: kurz, abweisend, aber nicht als Karikatur.
     if (!STORY.positionGestellt) {
       return { lines: [
-        'Sie wollen wissen, wann wieder aufgemacht wird. Das wollen alle.',
+        'Du willst wissen, wann wieder aufgemacht wird. Das wollen alle.',
         'Wenn sich das Lager leert. Vorher wäre es Wahnsinn, weiterzuproduzieren.',
         'Ich stelle niemanden ein, damit er beschäftigt ist. Ich stelle jemanden ein, wenn ich ' +
         'seine Arbeit verkaufen kann.'
@@ -419,25 +421,39 @@ const DIALOGE = {
     }
     if (STORY.gate3) {
       return { lines: [
-        'Ich habe Ihnen nichts vorgemacht. Sie können jede Zahl nachprüfen.',
-        'Dass Sie am Ende trotzdem seine Geschichte glauben und nicht meine – das ist Ihre ' +
+        'Ich habe dir nichts vorgemacht. Du kannst jede Zahl nachprüfen.',
+        'Dass du am Ende trotzdem seine Geschichte glaubst und nicht meine – das ist deine ' +
         'Entscheidung, nicht meine Zahl.'
       ] };
     }
     // Zug 5: die Gegenerzählung. Jede Aussage deckt sich mit dem, was der
     // Spieler selbst gesehen hat – hier wird an keiner Stelle gelogen.
+    //
+    // Die letzten drei Absätze stellen der Marxschen Theorie die seine
+    // gegenüber: Besitz, Risiko, Entscheidung. Er bestreitet die Lohnrechnung
+    // ausdrücklich NICHT – er bestreitet nur das Wort dafür. Genau darauf baut
+    // Zug 5b auf. Die 70 und die 11 zählt er dabei nicht selbst auf, sonst
+    // stünde die Zuordnungsaufgabe schief: In SEINER Erzählung kommen sie
+    // nicht vor, und genau das sollen die Schülis dort sortieren.
     return {
       lines: [
-        'Er hat Ihnen also acht Jahre erzählt. Dann erzähle ich Ihnen dieselben acht Jahre.',
+        'Er hat dir also acht Jahre erzählt. Dann erzähle ich dir dieselben acht Jahre.',
         '1861 standen in dieser Straße vier Werkstätten. Zusammen ernährten sie vielleicht ' +
         'dreißig Menschen. Heute arbeiten zweihundert unter meinem Dach.',
         'Ein Ballen Tuch kostet die Hälfte dessen, was er damals kostete. Das heißt: Auch die ' +
         'Frau eines Tagelöhners kann ihre Kinder einkleiden. Vor zwanzig Jahren konnte sie das nicht.',
         'Und wer bei mir anfängt, braucht dafür keine siebenjährige Lehre. Er braucht zwei Wochen. ' +
-        'Fragen Sie einen Meister, was er davon hält – und fragen Sie den, der die Lehrjahre ' +
-        'nicht bezahlen konnte.',
-        'Ich sage nicht, dass es Ihnen gut geht. Ich sage, dass Sie mir nicht erzählen sollen, ' +
-        'es sei vorher besser gewesen.'
+        'Frag einen Meister, was er davon hält – und frag den, der die Lehrjahre nicht bezahlen konnte.',
+        'Ich sage nicht, dass es dir gut geht. Ich sage, dass du mir nicht erzählen sollst, ' +
+        'es sei vorher besser gewesen.',
+        'Der Mann da drüben hat übrigens ein Wort für das, was hier läuft. Er nennt es ' +
+        'Kapitalismus. Ich nenne es ein Geschäft.',
+        'Mir gehören die Maschinen. Ich habe sie bezahlt, ich habe dieses Haus dafür verpfändet, ' +
+        'und wenn das Tuch da drin nicht verkauft wird, bin ich der Ruinierte – nicht du. Wer ' +
+        'besitzt und wer das Risiko trägt, der entscheidet. So läuft das.',
+        'Deine Rechnung bestreite ich nicht. Keine einzige Zahl. Ich bestreite, dass sie ' +
+        'Diebstahl heißt. Was bei mir hängenbleibt, ist der Preis dafür, dass überhaupt jemand ' +
+        'das Risiko trägt.'
       ],
       after() {
         STORY.besitzerGehoert = true;
@@ -448,6 +464,16 @@ const DIALOGE = {
 
   marx() {
     // --- Zug 5b: Auflösung nach der Zuordnung ---
+    //
+    // Hier wird die Leiter von unten gebaut, und zwar am Lohn, weil die
+    // Schülis den in Areal 1 selbst ausgerechnet haben:
+    //   1. Der Befund: 70 erarbeitet, 11 ausgezahlt. Nachrechenbar, und der
+    //      Fabrikbesitzer bestreitet ihn gerade ausdrücklich nicht.
+    //   2. Der Name: Ausbeutung oder Preis des Risikos. Darüber wird
+    //      gestritten, und jeder Name gehört zu einer anderen Ordnung.
+    //   3. Der Bogen: worauf das Ganze hinausläuft. Erst das heißt Narrativ.
+    // Ohne Stufe 2 ist der Sprung vom Rechenbeispiel zum Begriff zu weit -
+    // dann klingt "Narrativ" wie eine Vokabel, die am Ende überreicht wird.
     if (STORY.gate3 && !STORY.narrativGestellt) {
       return {
         lines: [
@@ -456,8 +482,25 @@ const DIALOGE = {
           'In deiner Erzählung kommt nicht vor, dass Tuch billiger geworden ist. In seiner kommt ' +
           'nicht vor, dass du dabei ärmer geworden bist.',
           'Keiner von euch hat gelogen. Ihr habt ausgewählt. Und die Auswahl ist die Geschichte.',
-          'Dafür gibt es ein Wort: ein Narrativ. Ich habe dir eins erzählt, acht Jahre lang, und ' +
-          'du hast dabei gestanden.',
+          'Und jetzt hör genau hin, was er eben gemacht hat: Er hat keine einzige Zahl bestritten. ' +
+          'Er hat ein Wort bestritten.',
+          'Von siebzig Talern, die du in der Spinnerei erarbeitet hast, sind elf bei dir ' +
+          'angekommen. Das ist keine Erzählung – das hast du selbst ausgerechnet, und er nimmt ' +
+          'dir keine Ziffer davon weg. Gestritten wird darüber, wie es heißt. Ich sage: ' +
+          'Ausbeutung. Er sagt: der Preis des Risikos.',
+          'Dieselbe Zahl, zwei Namen – und jeder Name gehört zu einer anderen Ordnung. Was er ' +
+          'verteidigt, nenne ich Kapitalismus: Die Fabriken, die Maschinen und der Boden gehören ' +
+          'Einzelnen, und wem sie gehören, der bestimmt.',
+          'Was ich dagegen will, heißt Sozialismus: Womit gearbeitet wird, gehört denen, die ' +
+          'damit arbeiten, und entschieden wird gemeinsam. Kommunismus nenne ich die Stufe ' +
+          'dahinter – die, auf der es die beiden Klassen gar nicht mehr gibt.',
+          'Und merk dir, wer hier wie benennt. Er braucht für seine Ordnung keinen Namen, weil ' +
+          'sie ihm selbstverständlich ist. Ich brauche einen, weil ich sie ändern will.',
+          'Du kennst Quelle und Darstellung – jeder Kasten in diesem Spiel war als das eine oder ' +
+          'das andere gekennzeichnet. Das hier ist die Stufe darüber, und sie heißt Narrativ.',
+          'Meine Rechnung kannst du nachprüfen; die stimmt oder sie stimmt nicht. Aber die Linie, ' +
+          'die ich durch deine acht Jahre gezogen habe, habe ich gezogen. Und du hast dabei ' +
+          'gestanden.',
           'Ein letztes Mal also, und diesmal gegen mich:'
         ],
         after() { oeffneNarrativfrage(); }

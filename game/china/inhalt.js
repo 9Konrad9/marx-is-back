@@ -14,8 +14,12 @@
 //      Marx erwartete die Revolution in den Fabriken. In China standen zwei
 //      Millionen Industriearbeitern vierhundert Millionen Menschen gegenüber,
 //      die meisten davon auf dem Land.
-//   3. Sie gibt dem Narrativbegriff aus Areal 5 seinen letzten Prüfstein:
-//      Drei Männer berufen sich auf denselben Autor und meinen Verschiedenes.
+//   3. Sie zeigt, dass eine Theorie ausgelegt werden muss, sobald sie irgendwo
+//      ankommt: Drei Männer berufen sich auf denselben Autor und meinen
+//      Verschiedenes. Das ist NICHT dasselbe wie der Narrativbegriff aus
+//      Areal 5 – dort geht es um Auswahl aus denselben Tatsachen, hier um
+//      Deutung derselben Theorie unter anderen Bedingungen. Deshalb fällt das
+//      Wort in dieser Szene bewusst nicht.
 //
 // Der Zeitpunkt liegt bewusst VOR dem 12. April 1927, genau wie Petrograd vor
 // dem Oktober liegt: Die Arbeiter haben die Stadt seit dem 21. März selbst in

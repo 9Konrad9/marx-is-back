@@ -78,6 +78,14 @@ Die sorgfältige Kennzeichnung jedes Kastens war zunächst nur Rechtevorsorge. M
 - **Darstellung** – jemand berichtet später über etwas: die Kernthesen-Kästen des Schulbuchs und, in Areal 5, die beiden Beschreibungen von Amazon und Mondragón. Der Kastenkopf sagt „Darstellung" statt „Quelle".
 - **Narrativ** – die Auswahl und Deutung dahinter. In Areal 5 erzählt der Fabrikbesitzer dieselben acht Jahre als seine Geschichte, ohne ein einziges Mal zu lügen.
 
+**Die Abgrenzung nach unten ist entscheidend – und sie wird am Lohn aufgebaut, nicht behauptet.** Areal 5 geht dafür in drei Stufen vor:
+
+1. **Befund.** Von 70 Talern erarbeitet, 11 ausgezahlt. Das haben die Schülis in Areal 1 selbst ausgerechnet, und der Fabrikbesitzer bestreitet in Zug 5 ausdrücklich keine einzige Zahl.
+2. **Name.** Heißt diese Differenz *Ausbeutung* oder *Preis des Risikos*? Darüber wird gestritten – mit Argumenten, nicht mit Geschmack. Hier benennen beide erstmals ihre Ordnung: Marx sagt Kapitalismus und Sozialismus, der Fabrikbesitzer sagt „ein Geschäft" und weist das Wort Kapitalismus zurück. Dass er für seine Ordnung keinen Namen braucht und Marx einen, ist selbst schon Teil der Deutung.
+3. **Bogen.** Worauf das Ganze hinausläuft. Erst das heißt Narrativ.
+
+Ohne Stufe 2 ist der Sprung vom Rechenbeispiel zum Begriff zu weit, und „Narrativ" klingt wie eine Vokabel, die am Schluss überreicht wird. Und die Grenze nach unten muss halten: Marx' Bild vom Gang der Geschichte ist eine Meistererzählung und darf so heißen, die Mehrwertrechnung aus Areal 1 ist es nicht. Hießen beide „Narrativ", wäre Ausbeutung Ansichtssache und Areal 1 entwertet. Eine frühere Fassung des Codex-Textes nannte „Marx' Erklärung des Kapitalismus" ein Narrativ und stand damit auf der falschen Seite dieser Grenze.
+
 **Auch typografisch getrennt:** Zitate stehen kursiv in Anführungszeichen, Zusammenfassungen aufrecht und ohne. Vorher sahen beide gleich aus, was die Unterscheidung im Nachweis wieder aufhob.
 
 ---

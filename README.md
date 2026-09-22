@@ -85,7 +85,10 @@ zentral ist und hier über sechs Areale eingeübt wird:
   beschriftet.
 - **Narrativ** – die Auswahl und Deutung dahinter. Im Finale erzählt der
   Fabrikbesitzer dieselben acht Jahre als seine Geschichte, ohne ein einziges
-  Mal zu lügen. Erst danach fällt der Begriff.
+  Mal zu lügen. Erst danach fällt der Begriff – und zwar über den Lohn: Dass
+  von 70 erarbeiteten Talern 11 ankamen, ist nachrechenbar und keine
+  Ansichtssache. Ob das *Ausbeutung* heißt oder *Preis des Risikos*, ist der
+  Streit; worauf das Ganze hinausläuft, ist das Narrativ.
 
 Das Spiel ist **bewusst einseitig**: Es erzählt konsequent aus der Perspektive
 des Proletariats. Der letzte Zug macht genau das zum Thema und stellt den
