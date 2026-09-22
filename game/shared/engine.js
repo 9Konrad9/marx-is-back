@@ -1505,6 +1505,11 @@ function richteStartbildschirmEin() {
         return;
       }
       studentName = elNameInput.value.trim();
+      // Denselben Namen auch fürs nächste Areal merken. Das Hauptmenü tut das
+      // ebenfalls; wer aber erst hier tippt oder den Namen ändert, hätte sonst
+      // im nächsten Areal wieder den alten stehen – und ein zweiter Name
+      // zerlegt den Codex, weil er nach Namen gefiltert wird.
+      try { localStorage.setItem('marxIsBack.name', studentName); } catch (e) { /* gesperrt */ }
       selectedGender = el.dataset.gender;
       document.getElementById('charSelect').classList.add('hidden');
       starteSpiel();
