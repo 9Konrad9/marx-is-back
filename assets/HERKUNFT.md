@@ -236,8 +236,8 @@ Dazu kam eine **Mindestdicke** für Schritt 2: Eine eingeschlossene Fläche wird
 nur entfernt, wenn irgendwo ein Quadrat von 2r+1 Pixeln hineinpasst. Ohne das
 riss der Schnitt beim Webstuhl die Lücken zwischen den Kettfäden auf, und das
 Bild sah zerfressen aus. Werte: r = 3 bei den Spielerposen (die Achsellücken
-sind dort nur rund 13 px breit), r = 8 bei den Einzelfiguren, r = 14 beim
-Webstuhl. Beim Taler ist Schritt 2 ganz abgeschaltet – seine Münzfläche **ist**
+sind dort nur rund 13 px breit), r = 8 bei den Einzelfiguren und beim Webstuhl.
+Beim Taler ist Schritt 2 ganz abgeschaltet – seine Münzfläche **ist**
 Blattgrau, der Schnitt hätte das Gesicht ausgestanzt.
 
 **Die Spielerposen ohne Raten.** Das Referenzblatt hat sechs Spalten statt
@@ -260,3 +260,23 @@ gegeben. Weiß war dort ohnehin keines.
 
 `eisenschild.png` wurde nur um 1 px rundum gestutzt (478 × 250); der
 `border-image`-Slice von 52 bleibt dabei gültig.
+
+### Was nach der Reparatur noch anschlägt – und warum es bleibt
+
+Die Prüfung auf eingeschlossene farblose Flächen meldet weiter sechs Dateien.
+Alle sechs wurden einzeln kontrolliert, keine ist ein Rest:
+
+- `npc_student`, `npc_arbeitergruppe`, `baumwolle`, `stoffballen`: die
+  gemeldeten Flächen liegen bei einer Helligkeit, die der jeweilige Blattgrund
+  gar nicht hat (119 gegen 145, 218 gegen 154 …). Es sind das glatte Gewand des
+  Studenten, ein heller Fleck auf der Schürze der alten Frau, die Leinwand der
+  Ballen. Beim Studenten kommt dazu, dass sein Blatt **weiß** war – ein Rest
+  müsste bei 255 liegen, nicht bei 119.
+- `eisenschild` hat überhaupt keine Transparenz; gemeldet wird die Platte selbst.
+- `webstuhl_detail` behält 321 px in vier Haarlinien, die dünnste genau einen
+  Pixel hoch. Sie verschwinden nur, wenn man die Mindestdicke so weit senkt,
+  dass es die Kettfäden mitnimmt – das Bild sähe dann zerfressen aus.
+
+Die beiden anderen Prüfungen – heller Saum an der Silhouette und fast weiße
+Pixel an der Transparenzkante – melden über alle 53 PNG-Dateien **null**
+Treffer.
