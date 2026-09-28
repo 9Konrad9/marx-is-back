@@ -80,6 +80,8 @@ const elToast      = document.getElementById('toast');
 const elRefl       = document.getElementById('reflexionOverlay');
 const elReflFrage  = document.getElementById('reflexionFrage');
 const elReflText   = document.getElementById('reflexionText');
+const elReflHinw   = document.getElementById('reflexionHinweis');
+const REFL_HINWEIS = elReflHinw ? elReflHinw.textContent : '';
 const elHud        = document.getElementById('hud');
 const btnAktion    = document.getElementById('btnAktion');
 const btnCodex     = document.getElementById('btnCodex');
@@ -298,11 +300,47 @@ window.addEventListener('keydown', e => {
 let toastTimer = null;
 
 function zeigeToast(text) {
+  startHinweisText = null;    // eine echte Meldung hat Vorrang
   elToast.textContent = text;
   elToast.classList.remove('hidden');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => elToast.classList.add('hidden'), 3200);
 }
+
+// ---------- Starthinweis ----------
+// Der Starthinweis ist die EINZIGE Stelle, an der die Steuerung erklärt wird.
+// Als gewöhnliche Meldung taugte er nicht: Nach 3,2 Sekunden war er weg, und
+// in Epilog und Schanghai lief er hinter der Auftaktkarte ab, sodass er nie
+// jemand gesehen hat. Er verhält sich deshalb anders als ein Toast:
+//   - Er wartet, solange ein Overlay über ihm liegt.
+//   - Er bleibt stehen, bis die Figur sich das erste Mal bewegt hat.
+//   - Er erscheint auch beim Fortsetzen, denn wer nach einer Pause
+//     zurückkommt, braucht ihn genauso.
+// Dauerhaft nachlesbar ist die Steuerung zusätzlich im Menü.
+let startHinweisText = null;
+
+function setzeStartHinweis(text) { startHinweisText = text; }
+
+function beendeStartHinweis() {
+  if (!startHinweisText) return;
+  startHinweisText = null;
+  elToast.classList.add('hidden');
+}
+
+function pflegeStartHinweis(bewegt) {
+  if (!startHinweisText) return;
+  if (uiBlocking()) return;                 // Auftaktkarte offen – abwarten
+  if (bewegt) { beendeStartHinweis(); return; }
+  if (elToast.classList.contains('hidden') || elToast.textContent !== startHinweisText) {
+    elToast.textContent = startHinweisText;
+    elToast.classList.remove('hidden');
+    clearTimeout(toastTimer);
+  }
+}
+
+const STEUERUNG_SATZ = IST_TOUCH
+  ? 'Wisch über das Bild, um zu laufen.'
+  : 'WASD oder Pfeiltasten zum Laufen.';
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => (
@@ -455,6 +493,15 @@ function baueMenu() {
         '<button class="holz menuBtn" data-tun="weiter">Weiterspielen</button>' +
         '<button class="holz menuBtn" data-tun="neustart">Dieses Areal neu starten</button>' +
         '<button class="holz menuBtn" data-tun="haupt">Zum Hauptmenü</button>' +
+      '</div>' +
+      // Die Steuerung stand bisher nur im Starthinweis, und der war nach ein
+      // paar Sekunden weg. Hier ist sie jederzeit nachlesbar – der Menüknopf
+      // ist in jedem Areal sichtbar.
+      '<h2 class="menuUnter">Steuerung</h2>' +
+      '<div class="menuHinweis">' + (IST_TOUCH
+        ? 'Wisch über das Bild, um zu laufen. Steht jemand in der Nähe, erscheint unten ' +
+          'der Knopf „Sprechen“. „Codex“ öffnet die Begriffe, die du schon gesammelt hast.'
+        : 'WASD oder Pfeiltasten zum Laufen, <b>E</b> zum Sprechen, <b>C</b> für den Codex.') +
       '</div>' +
       '<div class="menuHinweis">„Dieses Areal neu starten" verwirft nur den Fortschritt in ' +
       'diesem einen Areal. Dein Codex und die Ergebnisse der anderen Areale bleiben erhalten.</div>' +
@@ -975,19 +1022,38 @@ function pruefeReihenfolge() {
 let reflCfg = null;
 let reflFeld = 'meinung';
 
+// Der Mindestumfang wird auch direkt über dem Knopf gemeldet, nicht nur als
+// Meldung am oberen Bildrand: Wer auf „Antwort speichern" tippt, schaut auf
+// den Knopf und nicht nach oben – und ein Knopf, der scheinbar nichts tut,
+// kostet im Unterricht garantiert eine Handmeldung.
+function setzeReflHinweis(text, warnung) {
+  if (!elReflHinw) return;
+  elReflHinw.textContent = text;
+  elReflHinw.classList.toggle('warnt', !!warnung);
+}
+
 function oeffneReflexion(c) {
   reflCfg = c;
   reflFeld = c.feld || 'meinung';
   elReflFrage.textContent = c.frage;
   elReflText.value = STORY[reflFeld] || '';
+  setzeReflHinweis(REFL_HINWEIS, false);
   elRefl.classList.remove('hidden');
   elReflText.focus();
+}
+
+if (elReflText) {
+  elReflText.addEventListener('input', () => {
+    if (elReflText.value.trim().length >= 15) setzeReflHinweis(REFL_HINWEIS, false);
+  });
 }
 
 document.getElementById('reflexionSpeichern').addEventListener('click', () => {
   const text = elReflText.value.trim();
   if (text.length < 15) {
     elReflText.focus();
+    setzeReflHinweis('Noch ein, zwei Sätze bitte – es gibt kein Richtig oder Falsch, ' +
+                     'aber ganz ohne Antwort geht es nicht weiter.', true);
     zeigeToast('Schreib bitte noch ein, zwei Sätze mehr – es gibt kein Richtig oder Falsch.');
     return;
   }
@@ -1224,6 +1290,7 @@ function update(dt) {
   }
 
   player.moving = (dx !== 0 || dy !== 0);
+  pflegeStartHinweis(player.moving);
 
   // Blickrichtung: dominante Achse gewinnt, nur bei Bewegung aktualisieren
   if (player.moving) {
@@ -1464,13 +1531,14 @@ function starteSpiel() {
     player.facing = fortsetzenStand.facing || 'front';
     fortsetzenStand = null;
     updateCamera();
-    zeigeToast('Willkommen zurück, ' + studentName + '. Es geht weiter, wo du aufgehört hast.');
+    setzeStartHinweis('Willkommen zurück, ' + studentName +
+                      '. Es geht weiter, wo du aufgehört hast. ' + STEUERUNG_SATZ);
   } else {
     bereinigeGesamtcodex();     // alte Einträge dieses Areals verwerfen
     player.x = cfg.startpunkt.x * ZOOM_FIX;
     player.y = cfg.startpunkt.y * ZOOM_FIX;
     updateCamera();
-    zeigeToast(IST_TOUCH ? cfg.startHinweisTouch : cfg.startHinweisTastatur);
+    setzeStartHinweis(IST_TOUCH ? cfg.startHinweisTouch : cfg.startHinweisTastatur);
   }
 
   speichereSpielstand();

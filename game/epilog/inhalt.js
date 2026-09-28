@@ -187,10 +187,15 @@ const DIALOGE = {
 
   tor() {
     if (STORY.gesehen.length < 3) {
+      // Nur das aufzählen, was wirklich noch fehlt – sonst schickt das Tor
+      // die Schülis zu Leuten, mit denen sie längst gesprochen haben.
+      const fehlt = [];
+      if (STORY.gesehen.indexOf('schlange') === -1) fehlt.push('die Brotschlange');
+      if (STORY.gesehen.indexOf('vorleser') === -1) fehlt.push('der Vorleser');
+      if (STORY.gesehen.indexOf('lenin') === -1)    fehlt.push('der Mann auf der Kiste');
       return { lines: [
         'Das Fabriktor steht offen. An einem Flügel hängt eine rote Fahne.',
-        'Aber sieh dich erst um – die Brotschlange, der Vorleser, der Mann auf der Kiste. ' +
-        'Du bist nur einmal hier.'
+        'Aber sieh dich erst um – ' + fehlt.join(', ') + '. Du bist nur einmal hier.'
       ] };
     }
     return {

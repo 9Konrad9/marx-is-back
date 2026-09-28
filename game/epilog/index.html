@@ -199,9 +199,9 @@ function zeichneKisten(ctx) {
   }
 }
 
-// Der Starthinweis erscheint gleichzeitig mit der Titelkarte und wäre verklungen,
-// bevor man sie weggeklickt hat. Deshalb liegt die Karte darüber, und der
-// Hinweis wird danach noch einmal gezeigt.
+// Der Starthinweis liegt unter der Titelkarte. Die Engine wartet damit, bis
+// nichts mehr darüber liegt, und lässt ihn stehen, bis die Figur sich das
+// erste Mal bewegt hat - hier ist also nichts extra zu tun.
 const HINWEIS_TASTATUR =
   'Sieh dich um. Es gibt hier nichts zu lösen. Bewegen mit WASD, sprechen mit E.';
 const HINWEIS_TOUCH =
@@ -219,7 +219,6 @@ document.getElementById('auftaktWeiter').addEventListener('click', () => {
   elAuftakt.classList.add('hidden');
   STORY.auftaktGezeigt = true;
   Spiel.speichern();
-  Spiel.zeigeToast(Spiel.istTouch ? HINWEIS_TOUCH : HINWEIS_TASTATUR);
 });
 
 // ---------- Schluss ----------

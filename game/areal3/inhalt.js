@@ -205,9 +205,17 @@ const DIALOGE = {
       ] };
     }
     if (!alleGesprochen) {
+      // Dieselbe Straße wird dreimal abgegangen, das sind zwölf Gespräche.
+      // Ohne Namen weiß nach dem zweiten Zeitsprung niemand mehr, wer noch
+      // fehlt – deshalb zählt Marx es auf, wie in den anderen Arealen auch.
+      const fehlt = MEISTER
+        .filter(m => STORY.besucht.indexOf(m.id) === -1)
+        .map(m => m.name);
       return { lines: [
         stufe.ankunft,
-        'Geh die Straße ab und sprich mit allen vier Meistern. Auch mit denen, die keinen Laden mehr haben.',
+        'Geh die Straße ab und sprich mit allen vier Meistern. Auch mit denen, die keinen ' +
+        'Laden mehr haben.',
+        'Dir fehlen noch: ' + fehlt.join(', ') + '.',
         'Und behalte deinen Wochenlohn im Auge. Er steht oben links.'
       ] };
     }

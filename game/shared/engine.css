@@ -413,6 +413,7 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 }
 #reflexionText:focus { outline: none; border-color: #c49a3c; }
 #reflexionHinweis { font-size: 13px; color: #b9ae99; margin: 10px 0 16px 0; }
+#reflexionHinweis.warnt { color: #e0908c; font-weight: bold; }
 
 /* ---------- Codex ---------- */
 #codexOverlay {
@@ -636,3 +637,11 @@ body.touch #interactHint { bottom: 150px; }
   line-height: 1.6;
   color: #a2977f;
 }
+/* Zwischenüberschrift im Menü ("Steuerung") – dasselbe Holzschild wie die
+   Hauptüberschrift, nur kleiner, damit die Ebene erkennbar bleibt. */
+.menuUnter {
+  font-size: 15px;
+  margin-top: 28px;
+  padding: 7px 16px;
+}
+.menuUnter + .menuHinweis { margin-top: 10px; }
