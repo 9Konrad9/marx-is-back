@@ -645,3 +645,11 @@ body.touch #interactHint { bottom: 150px; }
   padding: 7px 16px;
 }
 .menuUnter + .menuHinweis { margin-top: 10px; }
+
+/* Zurück-Knopf im Codex. Sitzt unter der Unterzeile, damit er auch bei
+   vollem Codex ohne Wischen erreichbar ist. */
+#codexZurueck {
+  padding: 10px 20px;
+  font-size: 14px;
+  margin: 4px 0 18px 0;
+}

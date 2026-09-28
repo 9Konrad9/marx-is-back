@@ -469,6 +469,25 @@ function toggleCodex() {
   }
 }
 
+// Zurück-Knopf im Codex. Auf dem iPad führte bisher kein Weg heraus: Der
+// Codexknopf am Bildrand wird ausgeblendet, sobald ein Overlay offen ist,
+// und „C" oder „Escape" gibt es ohne Tastatur nicht. Der Knopf wird hier
+// erzeugt statt in jede der acht Areal-Dateien geschrieben, und er sitzt
+// oben – bei einem vollen Codex wäre er unten erst nach langem Wischen zu
+// erreichen.
+function baueCodexZurueck() {
+  const innen = elCodex && elCodex.querySelector('.gateInner');
+  if (!innen) return;
+  const btn = document.createElement('button');
+  btn.id = 'codexZurueck';
+  btn.className = 'holz';
+  btn.textContent = 'Zurück ins Spiel';
+  btn.addEventListener('click', toggleCodex);
+  const nach = innen.querySelector('.gateSub');
+  if (nach && nach.nextSibling) innen.insertBefore(btn, nach.nextSibling);
+  else innen.appendChild(btn);
+}
+
 // ---------- Spielmenü ----------
 // Knopf und Fenster werden hier erzeugt statt in jede der sieben
 // Areal-Dateien geschrieben – so bekommt jedes Areal das Menü automatisch.
@@ -1721,6 +1740,7 @@ function start(konfiguration) {
   bgImage.src = cfg.hintergrund;
 
   baueMenu();
+  baueCodexZurueck();
   richteStartbildschirmEin();
 }
 
